@@ -2,46 +2,93 @@ from pathlib import Path
 import csv
 import numpy as np
 
-class CSVDataImporter:
-    def __init__(self, root_dir=None):
-        project_root = Path(__file__).resolve().parent
-        self.root_dir = Path(root_dir) if root_dir else project_root
+# --- Exempelkod för att hämta data ---
 
-    def load(self, relative_path):
-        path = self.root_dir / Path(relative_path)
+#    # Hämta csv-data
+#    path = "Data/Jury/2023_jury_results.csv"
+#    votes = CSVTools.load(path)
+#
+#    # Konvertera till matris.
+#    matrix, countries = MatrixProvider.matrix_from_data(votes)
+
+class CSVTools:
+    @staticmethod
+    def load(relative_path, root_dir=None):
+        # Get path to root
+        project_root = Path(__file__).resolve().parent
+        root_dir = Path(root_dir) if root_dir else project_root
+        
+        # Fetch data from relative path
+        path = root_dir / Path(relative_path)
         with path.open(newline="", encoding="utf-8") as handle:
             return list(csv.DictReader(handle))
-
-# strips keys_to_remove from a country dict
+        
 keys_to_remove = ['Contestant', 'Total score', 'Jury score', 'Televoting score']
-def strip_data(country: dict) -> dict:
-    stripped_country = dict()
-    for key, value in country.items():
-        # Only keep items that are not marked for deletion
-        if key not in keys_to_remove:
-            stripped_country[key] = value
-            
-    return stripped_country
+class MatrixProvider:    
+    @staticmethod
+    def matrix_from_data(data, filter = None):
+        # Strip data
+        countries = MatrixProvider.__strip_datas(data)
 
-# strip_datas "overload"
-def strip_datas(countries):
-    for index, country in enumerate(countries):
-        countries[index] = strip_data(country)
-    return countries
+        # Convert to np matrix
+        return MatrixProvider.__dict_to_matrix(countries, filter)
 
-# Convert dict data to an np matrix
-def dict_to_matrix(countries):
-    return np.matrix((1,1))
+    # Strips keys_to_remove from a country dict
+    @staticmethod
+    def __strip_data(country: dict) -> dict:
+        stripped_country = dict()
+        for key, value in country.items():
+            # Only keep items that are not marked for deletion
+            if key not in keys_to_remove:
+                stripped_country[key] = value
+        
+        return stripped_country
+    
+    # Strip_datas "overload"
+    @staticmethod
+    def __strip_datas(countries):
+        for index, country in enumerate(countries):
+            countries[index] = MatrixProvider.__strip_data(country)
+        return countries
 
+    # Convert dict data to a numeric np matrix
+    @staticmethod
+    def __dict_to_matrix(countries, filter = None):
+        if filter == None:
+            filter = lambda x: x
+        def str_to_int(value):
+            if value is None:
+                return 0
+            if value == '':
+                return 0
+            return int(value)
+        
+        # Order keys based on their first appearance
+        ordered_keys = []
+        for country in countries:
+            for key in country:
+                if key not in ordered_keys:
+                    ordered_keys.append(key)
+
+        # Populate rows
+        rows = []
+        for country in countries:
+            row = []
+            for key in ordered_keys:
+                row.append(filter(str_to_int(country.get(key))))
+            rows.append(row)
+
+        return (np.asarray(rows, dtype=float), ordered_keys)
+    
+
+# Example use
 if __name__ == "__main__":
-    # Get data
-    importer = CSVDataImporter()
-    countries = importer.load("Data/Jury/2023_jury_results.csv")
+    # Get voting data
+    path = "Data/Jury/2023_jury_results.csv"
+    votes = CSVTools.load(path)
 
-    # strip data
-    countries = strip_datas(countries)
+    # Convert to matrix form
+    matrix, countries = MatrixProvider.matrix_from_data(votes)
 
-    # convert to np matrix
-    countries_matrix = dict_to_matrix(countries)
-
-    print(countries_matrix)
+    print(matrix)
+    print(countries)
