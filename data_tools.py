@@ -3,7 +3,7 @@ import numpy as np
 import sys
 import csv
 
-# --- Exempelkod för att hämta data (kan kopieras in i annnan .py-fil i samma folder som data_tools) ---
+# --- Exempelkod för att hämta data (kan kopieras in i annan .py-fil i samma folder som data_tools) ---
 
 #    from data_tools import CSVTools, MatrixTools
 #
