@@ -4,12 +4,14 @@ import numpy as np
 
 # --- Exempelkod för att hämta data ---
 
+#    from data_importer import CSVTools, MatrixTools
+#
 #    # Hämta csv-data
 #    path = "Data/Jury/2023_jury_results.csv"
 #    votes = CSVTools.load(path)
 #
 #    # Konvertera till matris.
-#    matrix, countries = MatrixProvider.matrix_from_data(votes)
+#    matrix, countries = MatrixTools.matrix_from_data(votes)
 
 class CSVTools:
     @staticmethod
@@ -24,14 +26,14 @@ class CSVTools:
             return list(csv.DictReader(handle))
         
 keys_to_remove = ['Contestant', 'Total score', 'Jury score', 'Televoting score']
-class MatrixProvider:    
+class MatrixTools:    
     @staticmethod
     def matrix_from_data(data, filter = None):
         # Strip data
-        countries = MatrixProvider.__strip_datas(data)
+        countries = MatrixTools.__strip_datas(data)
 
         # Convert to np matrix
-        return MatrixProvider.__dict_to_matrix(countries, filter)
+        return MatrixTools.__dict_to_matrix(countries, filter)
 
     # Strips keys_to_remove from a country dict
     @staticmethod
@@ -48,7 +50,7 @@ class MatrixProvider:
     @staticmethod
     def __strip_datas(countries):
         for index, country in enumerate(countries):
-            countries[index] = MatrixProvider.__strip_data(country)
+            countries[index] = MatrixTools.__strip_data(country)
         return countries
 
     # Convert dict data to a numeric np matrix
@@ -88,7 +90,7 @@ if __name__ == "__main__":
     votes = CSVTools.load(path)
 
     # Convert to matrix form
-    matrix, countries = MatrixProvider.matrix_from_data(votes)
+    matrix, countries = MatrixTools.matrix_from_data(votes)
 
     print(matrix)
     print(countries)
