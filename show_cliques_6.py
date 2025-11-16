@@ -16,28 +16,29 @@ class PygameVars:
 
 @dataclass
 class MvVars:
-    central_acceleration: int
+    central_multiplier: np.float32
+    node_distance: int
+    node_multiplier: np.float32
+
 
 
 class Node:
     def __init__(
-        self, pos: NDArray[np.float64], R: int = 30, NAME: str|None = None, COLOR: tuple[int, int, int] = (66, 123, 245)
+        self, pos: NDArray[np.float32], R: int = 8, NAME: str|None = None, COLOR: tuple[int, int, int] = (66, 123, 245)
     ):
         self.R = R
         self.COLOR = COLOR
         self.pos = pos
 
-    def mv(self, dpos: NDArray[np.float64]) -> None:
+    def mv(self, dpos: NDArray[np.float32]) -> None:
         self.pos += dpos
 
     def draw(self, screen: pygame.Surface) -> None:
         pygame.draw.circle(screen, self.COLOR, self.pos.tolist(), self.R)
 
-
-
 class Nodes:
     """A class for operating on all of the nodes"""
-    def __init__(self, VERTEX_MATRIX: np.ndarray, SCREEN_SIZE: tuple[int, int],NODE_NAMES: tuple[str,...], CHOSEN_NODES: tuple|None = None):
+    def __init__(self, mv_vars: MvVars, CENTRUM_POINT:np.ndarray, VERTEX_MATRIX: np.ndarray, SCREEN_SIZE: tuple[int, int],NODE_NAMES: tuple[str,...], CHOSEN_NODES: tuple|None = None):
         """
         Args:
             VERTEX_MATRIX: a matrix of ones and zeros which explains which nodes are connected to which. Shape (n x n)
@@ -47,50 +48,89 @@ class Nodes:
             CHOSEN_NODES = tuple(range(VERTEX_MATRIX.shape[0]))  # include all indices of rows in vertex_matrix
         self.nodes = self.generate_nodes(CHOSEN_NODES, SCREEN_SIZE, NODE_NAMES)
         self.VERTEX_MATRIX = VERTEX_MATRIX
+        self.mv_vars = mv_vars
+        self.CENTRUM_PONT = CENTRUM_POINT
         
     @staticmethod
     def generate_nodes(CHOSEN_NODES: tuple, SCREEN_SIZE: tuple[int, int], NODE_NAMES: tuple[str,...]) -> list[Node]:
         '''Simple helper method to generate the a list of type Node for indices in CHOSEN_NODES'''
-        x_positions = np.random.randint(low=0,high = SCREEN_SIZE[0], size=len(CHOSEN_NODES))
-        y_positions = np.random.randint(low=0,high= SCREEN_SIZE[1], size=len(CHOSEN_NODES))
+        x_positions = np.random.randint(low=0,high = SCREEN_SIZE[0], size=len(CHOSEN_NODES)).astype(np.float32)
+        y_positions = np.random.randint(low=0,high= SCREEN_SIZE[1], size=len(CHOSEN_NODES)).astype(np.float32)
         nodes = []
         for list_index, node_index in enumerate(CHOSEN_NODES):
             name = NODE_NAMES[node_index]
             x_pos = x_positions[list_index]
             y_pos = y_positions[list_index]
             
-            node = Node(pos=np.array(x_pos, y_pos))
+            node = Node(pos=np.array([x_pos, y_pos]), NAME=name)
             nodes.append(node)
         return nodes
 
+    def mv_distance(self, multiplier:np.float32, distances:np.ndarray) -> np.ndarray:
+        d = multiplier*(distances-self.mv_vars.node_distance)
+        return d
+
     def mv(self):
         '''Moves all the nodes, by applying forces to keep the connected once close, the disconnected once away and all of them close to center'''
-        pass
-    def draw(self):
-        pass
+        positions = np.array([node.pos for node in self.nodes])
+        for i, node in enumerate(self.nodes):
+            centrum_vec = self.CENTRUM_PONT-node.pos
+            centrum_distance = np.linalg.norm(centrum_vec)
+            normalized_centrum_vec = centrum_vec/centrum_distance
+            mv_centrum_vec = self.mv_vars.central_multiplier*centrum_distance*normalized_centrum_vec
+
+            # Forces between nodes
+            connected_to = self.VERTEX_MATRIX[i]
+            vec_to_connected_nodes = (positions-node.pos)[np.where(connected_to)]
+            distance_to_connected_nodes = np.linalg.norm(vec_to_connected_nodes, axis=-1)
+            
+            normalized_vec_connected_nodes = vec_to_connected_nodes/distance_to_connected_nodes[:, np.newaxis]
+
+            distances = self.mv_distance(mv_vars.node_multiplier, distance_to_connected_nodes)
+            vectorized_distances = normalized_vec_connected_nodes*distances
+            
+            movement_vec = np.sum(vectorized_distances, axis=-1)+mv_centrum_vec
+            node.mv(movement_vec)
+
+
+    def draw(self, screen: pygame.Surface):
+        for node in self.nodes:
+            node.draw(screen)
 
 def setup_pygame_vars(WIDTH: int, HEIGHT: int, FPS: int) -> PygameVars:
     pygame.init()
     screen = pygame.display.set_mode((WIDTH, HEIGHT))
-    pygame.display.set_caption("Rörlig cirkel — mainloop")
+    pygame.display.set_caption("Nodvisning")
     clock = pygame.time.Clock()
     return PygameVars(
         screen=screen,
         clock=clock,
         FPS=FPS,
-        BG_COLOR=(20, 20, 20),
+        BG_COLOR=(35, 35, 35),
         SCREEN_SIZE=(WIDTH, HEIGHT),
     )
 
+def setup_movement_vars(FPS: int) -> MvVars:
+    central_multiplier = np.float32(0.5/FPS) # 3 pixels per second
+    node_distance = 40 # pixels
+    node_multiplier = np.float32(5/FPS) # 5 pixels per second
+
+    mv_vars = MvVars(central_multiplier=central_multiplier, node_distance=node_distance, node_multiplier=node_multiplier)
+    return mv_vars
+
+
+
 def mainloop(
     pygame_vars: PygameVars,
+    mv_vars: MvVars
 ):
     running = True
 
-    VERTEX_MATRIX: np.ndarray = np.array([[0,0,1], [1,0,1], [1,0,0]])
+    VERTEX_MATRIX: np.ndarray = np.array([[0,1,1], [1,0,1], [1,1,0]])
     CHOSEN_VERTICES = (0,1,2)
     NODE_NAMES = ("Sweden", "Bulgaria", "North Korea")
-    nodes = Nodes(VERTEX_MATRIX, pygame_vars.SCREEN_SIZE, NODE_NAMES, CHOSEN_VERTICES)
+    CENTRUM_POINT = np.array([pygame_vars.SCREEN_SIZE[0]/2, pygame_vars.SCREEN_SIZE[1]/2])
+    nodes = Nodes(mv_vars, CENTRUM_POINT, VERTEX_MATRIX, pygame_vars.SCREEN_SIZE, NODE_NAMES, CHOSEN_VERTICES)
     while running:
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
@@ -100,15 +140,15 @@ def mainloop(
 
         pygame_vars.screen.fill(pygame_vars.BG_COLOR)
         nodes.mv()
-        nodes.draw()
+        nodes.draw(pygame_vars.screen)
         pygame.display.flip()
         pygame_vars.clock.tick(pygame_vars.FPS)
         pygame.display.update()
+        pass
     pygame.quit()
     sys.exit()
 
-
 if __name__ == "__main__":
-    
     pygame_vars = setup_pygame_vars(WIDTH=800, HEIGHT=600, FPS=40)
-    mainloop(pygame_vars)
+    mv_vars = setup_movement_vars(pygame_vars.FPS)
+    mainloop(pygame_vars, mv_vars)
