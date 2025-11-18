@@ -2,7 +2,7 @@
 
 #Lista för att testa
 a = ["a", "b", "c"]
-b = ["d", "e"]
+b = ["d", "e", ""]
 c = ["f"]
 d = ["g", "h", "i", "j"]
 temp_list = [a, b, c, d]
@@ -20,5 +20,11 @@ ranked_length = []
 for i in range(len(temp_list)):
     ranked_length.append(temp_list.pop(find_index_longest(temp_list)))
 
-for j in range(len(ranked_length)):
-    print(f"Plats {j+1}: {ranked_length[j]}")
+j = 0
+while j in range(len(ranked_length)):
+    rank_length = len(ranked_length[j])
+    print(f"Plats {j+1}:", end = "\n")
+    while (j in range(len(ranked_length)) and len(ranked_length[j]) == rank_length):
+        print(f"{ranked_length[j]}", end = "\n")
+        j += 1
+    print("\n")
