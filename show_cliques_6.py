@@ -35,6 +35,10 @@ class Node:
 
     def draw(self, screen: pygame.Surface) -> None:
         pygame.draw.circle(screen, self.COLOR, self.pos.tolist(), self.R)
+    
+    def draw_arrow(self, screen: pygame.Surface, end_pos: np.ndarray) -> None:
+        pygame.draw.line(screen, color= (200,200,200), start_pos=self.pos.tolist(), end_pos=end_pos.tolist())
+
 
 class Nodes:
     """A class for operating on all of the nodes"""
@@ -67,30 +71,33 @@ class Nodes:
         return nodes
 
     def mv_distance(self, multiplier:np.float32, distances:np.ndarray) -> np.ndarray:
-        d = multiplier*(distances-self.mv_vars.node_distance)
-        return d
+        ds = multiplier*(distances-self.mv_vars.node_distance)
+        return ds
+
+    def calculate_movement_vec(self, vectors: np.ndarray, multiplier:np.float32, prefered_distance: np.float32 | float) -> np.ndarray:
+        '''Given some vectors in different directions, calculate '''
+        length_of_vectors = np.linalg.norm(vectors, axis=-1)
+        normalized_vectors = vectors / length_of_vectors[:, np.newaxis]
+        distances = multiplier* ( length_of_vectors - prefered_distance)
+        vectorized_distances = distances* normalized_vectors
+        return np.sum(vectorized_distances, axis=0)
+         
 
     def mv(self):
         '''Moves all the nodes, by applying forces to keep the connected once close, the disconnected once away and all of them close to center'''
         positions = np.array([node.pos for node in self.nodes])
         for i, node in enumerate(self.nodes):
+
+            # Force to center
             centrum_vec = self.CENTRUM_PONT-node.pos
-            centrum_distance = np.linalg.norm(centrum_vec)
-            normalized_centrum_vec = centrum_vec/centrum_distance
-            mv_centrum_vec = self.mv_vars.central_multiplier*centrum_distance*normalized_centrum_vec
+            movement_centrum = self.calculate_movement_vec(centrum_vec[None, ...], self.mv_vars.central_multiplier, prefered_distance=0)
 
             # Forces between nodes
             connected_to = self.VERTEX_MATRIX[i]
             vec_to_connected_nodes = (positions-node.pos)[np.where(connected_to)]
-            distance_to_connected_nodes = np.linalg.norm(vec_to_connected_nodes, axis=-1)
-            
-            normalized_vec_connected_nodes = vec_to_connected_nodes/distance_to_connected_nodes[:, np.newaxis]
+            movement_to_nodes = self.calculate_movement_vec(vec_to_connected_nodes, self.mv_vars.node_multiplier, prefered_distance=self.mv_vars.node_distance)
 
-            distances = self.mv_distance(mv_vars.node_multiplier, distance_to_connected_nodes)
-            vectorized_distances = normalized_vec_connected_nodes*distances
-            
-            movement_vec = np.sum(vectorized_distances, axis=-1)+mv_centrum_vec
-            node.mv(movement_vec)
+            node.mv(movement_to_nodes+movement_centrum)
 
 
     def draw(self, screen: pygame.Surface):
@@ -113,7 +120,7 @@ def setup_pygame_vars(WIDTH: int, HEIGHT: int, FPS: int) -> PygameVars:
 def setup_movement_vars(FPS: int) -> MvVars:
     central_multiplier = np.float32(0.5/FPS) # 3 pixels per second
     node_distance = 40 # pixels
-    node_multiplier = np.float32(5/FPS) # 5 pixels per second
+    node_multiplier = np.float32(1/FPS) # 5 pixels per second
 
     mv_vars = MvVars(central_multiplier=central_multiplier, node_distance=node_distance, node_multiplier=node_multiplier)
     return mv_vars
