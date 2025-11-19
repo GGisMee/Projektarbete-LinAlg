@@ -54,7 +54,8 @@ class Nodes:
         self.VERTEX_MATRIX = VERTEX_MATRIX
         self.mv_vars = mv_vars
         self.CENTRUM_PONT = CENTRUM_POINT
-        
+        self.positions: np.ndarray = np.array([])
+
     @staticmethod
     def generate_nodes(CHOSEN_NODES: tuple, SCREEN_SIZE: tuple[int, int], NODE_NAMES: tuple[str,...]) -> list[Node]:
         '''Simple helper method to generate the a list of type Node for indices in CHOSEN_NODES'''
@@ -74,7 +75,8 @@ class Nodes:
         ds = multiplier*(distances-self.mv_vars.node_distance)
         return ds
 
-    def calculate_movement_vec(self, vectors: np.ndarray, multiplier:np.float32, prefered_distance: np.float32 | float) -> np.ndarray:
+    @staticmethod
+    def calculate_movement_vec(vectors: np.ndarray, multiplier:np.float32, prefered_distance: np.float32 | float) -> np.ndarray:
         '''Given some vectors in different directions, calculate '''
         length_of_vectors = np.linalg.norm(vectors, axis=-1)
         normalized_vectors = vectors / length_of_vectors[:, np.newaxis]
@@ -85,7 +87,7 @@ class Nodes:
 
     def mv(self):
         '''Moves all the nodes, by applying forces to keep the connected once close, the disconnected once away and all of them close to center'''
-        positions = np.array([node.pos for node in self.nodes])
+        self.positions = np.array([node.pos for node in self.nodes])
         for i, node in enumerate(self.nodes):
 
             # Force to center
@@ -94,15 +96,22 @@ class Nodes:
 
             # Forces between nodes
             connected_to = self.VERTEX_MATRIX[i]
-            vec_to_connected_nodes = (positions-node.pos)[np.where(connected_to)]
+            vec_to_connected_nodes = (self.positions-node.pos)[np.where(connected_to)]
             movement_to_nodes = self.calculate_movement_vec(vec_to_connected_nodes, self.mv_vars.node_multiplier, prefered_distance=self.mv_vars.node_distance)
 
             node.mv(movement_to_nodes+movement_centrum)
 
+    def _draw_arrows(self, node: Node, i:int):
+        connected_to = self.VERTEX_MATRIX[i]
+        vec_to_connected_nodes = (self.positions-node.pos)[np.where(connected_to)]
+        #* add a static method to 1. get vec_to_connected_nodes and connected to matrix.
+        #* a static method to get length of vec and normalized vecs outside of calculate movement vec, maybe put this in another empty class?
 
     def draw(self, screen: pygame.Surface):
-        for node in self.nodes:
+        '''Draws the nodes, the arrow lines and the arrow heads.'''
+        for i, node in enumerate(self.nodes):
             node.draw(screen)
+            self._draw_arrows(node, i) 
 
 def setup_pygame_vars(WIDTH: int, HEIGHT: int, FPS: int) -> PygameVars:
     pygame.init()
