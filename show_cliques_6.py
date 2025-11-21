@@ -84,34 +84,31 @@ class Nodes:
         vectorized_distances = distances* normalized_vectors
         return np.sum(vectorized_distances, axis=0)
          
+    def get_output_movement_vector(self, node:Node, vectors_to_connected_nodes:np.ndarray):
+        '''Creates the different vectors and adds them together to get a finalized movement vector for the node'''
+        centrum_vec = self.CENTRUM_PONT-node.pos
+        vec_to_center = self.calculate_movement_vec(centrum_vec[None, ...], self.mv_vars.central_multiplier, prefered_distance=0)
+        summed_vec_to_connected_nodes = self.calculate_movement_vec(vectors_to_connected_nodes, self.mv_vars.node_multiplier, prefered_distance=self.mv_vars.node_distance)
+        return vec_to_center+summed_vec_to_connected_nodes
 
-    def mv(self):
-        '''Moves all the nodes, by applying forces to keep the connected once close, the disconnected once away and all of them close to center'''
+    def mv_and_draw(self, screen: pygame.Surface):
+        '''A function which iterates through the nodes. 
+        Doing so it draws the nodes arrow lines between the nodes and the arrow heads
+        And after that it applies the forces to keep the connected once close, the disconnected once away and all of them close to center
+        '''
         self.positions = np.array([node.pos for node in self.nodes])
         for i, node in enumerate(self.nodes):
-
-            # Force to center
-            centrum_vec = self.CENTRUM_PONT-node.pos
-            movement_centrum = self.calculate_movement_vec(centrum_vec[None, ...], self.mv_vars.central_multiplier, prefered_distance=0)
-
-            # Forces between nodes
+            # Get all the vectors to the connected_nodes
             connected_to = self.VERTEX_MATRIX[i]
-            vec_to_connected_nodes = (self.positions-node.pos)[np.where(connected_to)]
-            movement_to_nodes = self.calculate_movement_vec(vec_to_connected_nodes, self.mv_vars.node_multiplier, prefered_distance=self.mv_vars.node_distance)
+            vectors_to_connected_nodes = (self.positions-node.pos)[np.where(connected_to)]
 
-            node.mv(movement_to_nodes+movement_centrum)
-
-    def _draw_arrows(self, node: Node, i:int):
-        connected_to = self.VERTEX_MATRIX[i]
-        vec_to_connected_nodes = (self.positions-node.pos)[np.where(connected_to)]
-        #* add a static method to 1. get vec_to_connected_nodes and connected to matrix.
-        #* a static method to get length of vec and normalized vecs outside of calculate movement vec, maybe put this in another empty class?
-
-    def draw(self, screen: pygame.Surface):
-        '''Draws the nodes, the arrow lines and the arrow heads.'''
-        for i, node in enumerate(self.nodes):
+            movement_vector = self.get_output_movement_vector(node, vectors_to_connected_nodes)
             node.draw(screen)
-            self._draw_arrows(node, i) 
+            node.draw_arrow(screen, vectors_to_connected_nodes)
+            
+            node.mv(movement_vector)
+
+            #* a static method to get length of vec and normalized vecs outside of calculate movement vec, maybe put this in another empty class?
 
 def setup_pygame_vars(WIDTH: int, HEIGHT: int, FPS: int) -> PygameVars:
     pygame.init()
@@ -155,8 +152,7 @@ def mainloop(
                 running = False
 
         pygame_vars.screen.fill(pygame_vars.BG_COLOR)
-        nodes.mv()
-        nodes.draw(pygame_vars.screen)
+        nodes.mv_and_draw(pygame_vars.screen)
         pygame.display.flip()
         pygame_vars.clock.tick(pygame_vars.FPS)
         pygame.display.update()
