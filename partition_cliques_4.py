@@ -1,6 +1,7 @@
 import collections
 import numpy as np
 
+
 def remove_rows_and_columns(arr,index_arr):
     for i in reversed(range(np.shape(arr)[0])):
         if not i in index_arr:
@@ -8,6 +9,7 @@ def remove_rows_and_columns(arr,index_arr):
             arr = np.delete(arr , i, 1)
     return arr
 
+#Modifierad Bron-Kerbosch algoritm, returnerar klickar och vissa delmängder av klickarna
 def BK(R,P,X,L,E):
     if len(P) == 0 and len(X) == 0:
         L.append(sorted(R))
@@ -16,7 +18,7 @@ def BK(R,P,X,L,E):
         BK(R.union(set([p])),P.intersection(E[p]),X.intersection(E[p]),L,E)
         X.add(p)
         P.remove(p)
-
+#Sorterar bort delmängderna av klickarna så bara klickarna är kvar
 def remove_sublist(lst):
     current = []
     result = []
@@ -51,4 +53,5 @@ def main():
     return L1
 
 main()
+
 
