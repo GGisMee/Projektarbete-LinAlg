@@ -47,8 +47,8 @@ def main():
     for i in range(n):
         L2.append(i)
     BK(set([]),set(L2),set([]),L1,find_edges(arr))
-    print(L1)
     L1 = remove_sublist(L1)
     return L1
 
 main()
+
