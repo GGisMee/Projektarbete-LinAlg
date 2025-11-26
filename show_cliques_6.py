@@ -37,6 +37,7 @@ class Node:
         self.pos = pos
         self.NAME =NAME
         self.ARROW_COLOR = ARROW_COLOR
+        self.font = pygame.font.Font(None, size=R)
 
     def mv(self, dpos: NDArray[np.float32]) -> None:
         self.pos += dpos
@@ -44,10 +45,13 @@ class Node:
     def draw_node(self, screen: pygame.Surface) -> None:
         pygame.draw.circle(screen, self.COLOR, self.pos.tolist(), self.R)
     
+    def draw_name(self, screen:pygame.Surface):
+        text_surface = self.font.render(self.NAME,True,(150,150,150))
+        text_rect = text_surface.get_rect(center = (self.pos[0], self.pos[1]-self.R*1.5))
+        screen.blit(text_surface, text_rect)
+
     def draw_arrow_head(self, node_edge_pos: np.ndarray, reangle_vector: np.ndarray):
         rx, ry = reangle_vector
-
-
         transform_vec = np.array([[rx, -ry], [ry, rx]])
         arrow_head_mat = np.array(((node_vars.line_width*4, -node_vars.line_width*2), (node_vars.line_width*4,node_vars.line_width*2)))
         arrow_head_mat = (transform_vec @ arrow_head_mat.T).T # Having to since the operations are done rowwise instead of columnwise...
@@ -126,8 +130,8 @@ class Nodes:
             movement_vector, normalized_vecs_to_connected_nodes = self.get_output_movement_vector(node, vectors_to_connected_nodes)
             node.draw_arrow(screen, vectors_to_connected_nodes, normalized_vecs_to_connected_nodes)
             node.draw_node(screen)
+            node.draw_name(screen)
             node.mv(movement_vector)
-            
 def setup_pygame_vars(WIDTH: int, HEIGHT: int, FPS: int) -> PygameVars:
     pygame.init()
     screen = pygame.display.set_mode((WIDTH, HEIGHT))
@@ -143,7 +147,7 @@ def setup_pygame_vars(WIDTH: int, HEIGHT: int, FPS: int) -> PygameVars:
 
 def setup_movement_vars(FPS: int) -> MvVars:
     central_multiplier = np.float32(0.1/FPS) # 3 pixels per second
-    node_distance = 60 # pixels
+    node_distance = 180 # pixels
     node_multiplier = np.float32(0.2/FPS) # 5 pixels per second
 
     mv_vars = MvVars(central_multiplier=central_multiplier, node_distance=node_distance, node_multiplier=node_multiplier)
@@ -158,7 +162,7 @@ def mainloop(
 ):
     running = True
 
-    VERTEX_MATRIX: np.ndarray = np.array([[0,1,1], [1,0,1], [1,1,0]])
+    VERTEX_MATRIX: np.ndarray = np.array([[0,0,1], [1,0,0], [1,1,0]])
     CHOSEN_VERTICES = (0,1,2)
     NODE_NAMES = ("Sweden", "Bulgaria", "North Korea")
     CENTRUM_POINT = np.array([pygame_vars.SCREEN_SIZE[0]/2, pygame_vars.SCREEN_SIZE[1]/2])
@@ -173,8 +177,6 @@ def mainloop(
         pygame_vars.screen.fill(pygame_vars.BG_COLOR)
         nodes.mv_and_draw(pygame_vars.screen)
 
-
-        
         pygame.display.flip()
 
         pygame_vars.clock.tick(pygame_vars.FPS)
@@ -184,7 +186,7 @@ def mainloop(
     sys.exit()
 
 if __name__ == "__main__":
-    pygame_vars = setup_pygame_vars(WIDTH=800, HEIGHT=600, FPS=40)
+    pygame_vars = setup_pygame_vars(WIDTH=3000, HEIGHT=2500, FPS=40)
     mv_vars = setup_movement_vars(pygame_vars.FPS)
-    node_vars = NodeVars(12,(66, 123, 245), 2, (150,150,150))
+    node_vars = NodeVars(30,(66, 123, 245), 5, (150,150,150))
     mainloop(pygame_vars, mv_vars,node_vars)
