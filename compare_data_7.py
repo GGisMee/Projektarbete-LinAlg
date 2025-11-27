@@ -67,6 +67,13 @@ land26 = Land("26")
 landlista = (land1, land2, land3, land4, land5, land6, land7, land8, land9, land10, land11, land12, land13, land14, land15,
              land16, land17, land18, land19, land20, land21, land22, land23, land24, land25, land26)
 
+def top_by_attribute(top_list, land, attribute, attribute2):
+    if (top_list == [] or getattr(land, attribute) > getattr(top_list[0], attribute)):
+        top_list.clear()
+        top_list.append(land)
+    elif (getattr(land, attribute) == getattr(top_list[0], attribute2)):
+        top_list.append(land)
+
 jury_clique_list = []
 tele_clique_list = []
 
@@ -105,6 +112,7 @@ for tele_years in tele_list:
 
 tele_done_cliques = []
 jury_done_cliques = []
+
 for cliques in (jury_clique_list):
     if (cliques not in jury_done_cliques):
         print(f"{cliques} var en klick för juryröster {jury_clique_list.count(cliques)} gånger")
@@ -120,29 +128,10 @@ top_jury_streak = []
 top_tele_streak = []
 
 for land in landlista:
-    if (top_jury_clique == [] or land.in_jury_clique > top_jury_clique[0].in_jury_clique):
-        top_jury_clique.clear()
-        top_jury_clique.append(land)
-    elif (land.in_jury_clique == top_jury_clique[0].in_jury_clique):
-        top_jury_clique.append(land)
-
-    if (top_tele_clique == [] or land.in_tele_clique > top_tele_clique[0].in_tele_clique):
-        top_tele_clique.clear()
-        top_tele_clique.append(land)
-    elif (land.in_tele_clique == top_tele_clique[0].in_tele_clique):
-        top_tele_clique.append(land)
-
-    if (top_jury_streak == [] or land.longest_jury_streak > top_jury_streak[0].longest_jury_streak):
-        top_jury_streak.clear()
-        top_jury_streak.append(land)
-    elif (land.longest_jury_streak == top_jury_streak[0].in_jury_clique):
-        top_jury_streak.append(land)
-
-    if (top_tele_streak == [] or land.longest_tele_streak > top_tele_streak[0].longest_tele_streak):
-        top_tele_streak.clear()
-        top_tele_streak.append(land)
-    elif (land.longest_tele_streak == top_tele_streak[0].in_tele_clique):
-        top_tele_streak.append(land)
+    top_by_attribute(top_jury_clique, land, "in_jury_clique", "in_jury_clique")
+    top_by_attribute(top_tele_clique, land, "in_tele_clique", "in_tele_clique")
+    top_by_attribute(top_jury_streak, land, "longest_jury_streak", "in_jury_clique")
+    top_by_attribute(top_tele_streak, land, "longest_tele_streak", "in_tele_clique")
 
 print(f"Jury champ: Land {top_jury_clique} i {top_jury_clique[0].in_jury_clique} jury klickar totalt")
 print(f"Tele champ: Land {top_tele_clique} i {top_tele_clique[0].in_tele_clique} televote klickar totalt")
