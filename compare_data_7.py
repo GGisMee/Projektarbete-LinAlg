@@ -9,10 +9,10 @@ jury_22 = [[1, 4],[7, 9]]
 tele_22 = [[16, 11, 25]]
 jury_21 = [[5, 6]] 
 tele_21 = [[]]
-jury_20 = [[1, 5], [22, 25]] 
+jury_20 = [[1, 5], [22, 25], [14, 1, 15]] 
 tele_20 = [[]]
-jury_19 = [[4, 5, 1, 7]] 
-tele_19 = [[5, 1, 7, 4]]
+jury_19 = [[4, 5, 1, 7], [15, 18]] 
+tele_19 = [[5, 1, 7, 4], [18, 15]]
 jury_18 = [[1, 12], [4, 1, 5]] 
 tele_18 = [[25, 26]]
 jury_17 = [[22, 5]] 
@@ -127,21 +127,33 @@ for land in landlista:
     top_by_attribute(top_jury_streak, land, "longest_jury_streak", "in_jury_clique")
     top_by_attribute(top_tele_streak, land, "longest_tele_streak", "in_tele_clique")
 
-cliques_in_both = {}
+cliques_in_both = []
 
 for i in range(len(jury_list) - 1):
     for j_cliques in jury_list[i]:
         for t_cliques in tele_list[i]:
             if sorted(j_cliques) == sorted(t_cliques):
-                cliques_in_both[2016 + i] = (sorted(j_cliques))
-    
+                cliques_in_both.append((2016+i, (sorted(j_cliques))))
 
-print(f"Jury champ: {top_jury_clique} i {top_jury_clique[0].in_jury_clique} jury klickar totalt")
-print(f"Tele champ: {top_tele_clique} i {top_tele_clique[0].in_tele_clique} televote klickar totalt")
+# Byter ut siffrorna i listorna till motsvarande land
+for cliques in common_jury_clique:
+    for i in range(len(cliques)):
+        cliques[i] = landlista[cliques[i]-1]
+for cliques in common_tele_clique:
+    for j in range(len(cliques)):
+        cliques[j] = landlista[cliques[j]-1]
+
+# Print-satser för alla resultat som hittats    
+print(f"Med i flest jury-klickar: {top_jury_clique} i {top_jury_clique[0].in_jury_clique} jury klickar totalt")
+print(f"Med i flest televote-klickar: {top_tele_clique} i {top_tele_clique[0].in_tele_clique} televote klickar totalt")
 print(f"\nLängsta streak att vara med i någon juryklick: \n{top_jury_streak}, {top_jury_streak[0].longest_jury_streak} år i rad inte ensam")
 print(f"\nLängsta streak att vara med i någon televoteklick: \n{top_tele_streak}, {top_tele_streak[0].longest_tele_streak} år i rad inte ensam")
-print(f"\nVanligaste jury-klicken: {common_jury_clique}, förekom {common_jury_clique_number} gånger")
-print(f"Vanligaste televote-klicken: {common_tele_clique}, förekom {common_tele_clique_number} gånger")
-print("\nÅr där klickar fanns både bland jury och televote: ")
-for years in cliques_in_both:
-    print(f"{years}: {cliques_in_both[years]}")
+print(f"\nVanligaste jury-klicken/klickarna:\n{common_jury_clique}, förekom {common_jury_clique_number} gånger")
+print(f"Vanligaste televote-klicken/klickarna:\n{common_tele_clique}, förekom {common_tele_clique_number} gånger")
+print("\nKlickar som fanns både bland jury och televote: ")
+# cliques_in_both är en lista med tupler, varav ena är en lista
+# ser ut som [[20XX, [1, 2]], [20XX, [3, 4]]]
+for years in range(len(cliques_in_both)):
+    for cliques in range(len(cliques_in_both[years][1])):
+        cliques_in_both[years][1][cliques] = landlista[cliques_in_both[years][1][cliques]-1]
+    print(f"{cliques_in_both[years][0]}: {cliques_in_both[years][1]}")
