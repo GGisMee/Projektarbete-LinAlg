@@ -1,26 +1,30 @@
-#Inte säker på vilken input som kommer hit
-#Tänker att det är listor på juryklickar varje år och listor på teleklickar varje år?
+# Inte säker på vilken input som kommer hit
+# Tänker att det är listor på juryklickar varje år och listor på teleklickar varje år?
+# Koden är ganska lång, men mer än hälften är bara en massa testlistor
 
+# En lista på klickar för jury och televotes (inte korrekta, bara test)
 jury_23 = [[1, 15, 14],[1, 2]]
 tele_23 = [[25, 16, 11]]
 jury_22 = [[1, 4],[7, 9]]
 tele_22 = [[16, 11, 25]]
 jury_21 = [[5, 6]] 
 tele_21 = [[]]
-jury_20 = [[1, 5]] 
+jury_20 = [[1, 5], [22, 25]] 
 tele_20 = [[]]
-jury_19 = [[4, 5]] 
-tele_19 = [[]]
+jury_19 = [[4, 5, 1, 7]] 
+tele_19 = [[5, 1, 7, 4]]
 jury_18 = [[1, 12], [4, 1, 5]] 
 tele_18 = [[25, 26]]
-jury_17 = [[5, 22]] 
-tele_17 = [[11, 25, 16]]
+jury_17 = [[22, 5]] 
+tele_17 = [[11, 25, 16], [22, 5]]
 jury_16 = [[22, 25], [5, 18]] 
 tele_16 = [[25, 26]]
 
+# Listor med jury och televotes
 jury_list = [jury_16, jury_17, jury_18, jury_19, jury_20, jury_21, jury_22, jury_23]
 tele_list = [tele_16, tele_17, tele_18, tele_19, tele_20, tele_21, tele_22, tele_23]
 
+# Blev lättare att jämföra olika länder med en klass
 class Land:
     def __init__(self, name):
         self.name = name
@@ -37,71 +41,49 @@ class Land:
     longest_jury_streak = 0
     longest_tele_streak = 0
 
-land1 = Land("1")
-land2 = Land("2")
-land3 = Land("3")
-land4 = Land("4")
-land5 = Land("5")
-land6 = Land("6")
-land7 = Land("7")
-land8 = Land("8")
-land9 = Land("9")
-land10 = Land("10")
-land11 = Land("11")
-land12 = Land("12")
-land13 = Land("13")
-land14 = Land("14")
-land15 = Land("15")
-land16 = Land("16")
-land17 = Land("17")
-land18 = Land("18")
-land19 = Land("19")
-land20 = Land("20")
-land21 = Land("21")
-land22 = Land("22")
-land23 = Land("23")
-land24 = Land("24")
-land25 = Land("25")
-land26 = Land("26")
-
-landlista = (land1, land2, land3, land4, land5, land6, land7, land8, land9, land10, land11, land12, land13, land14, land15,
-             land16, land17, land18, land19, land20, land21, land22, land23, land24, land25, land26)
+# Lång lista på länder, kanske går med en dictionary istället
+# Vet inte hur en loop för det skulle se ut om de ska ha olika namn, inte bara land_1, land_2 etc	
+landlista = [Land("Austria"), Land("Iceland"), Land("Azerbaijan"), Land("San Marino"), Land("Czech Republic"),
+             Land("Ireland"), Land("Georgia"), Land("Bosnia and Herzegovina"), Land("Malta"), Land("Spain"),
+             Land("Finland"), Land("Switzerland"), Land("Denmark"), Land("France"), Land("Moldova"), Land("Armenia"),
+             Land("Cyprus"), Land("Bulgaria"), Land("Netherlands"), Land("Latvia"), Land("Israel"), Land("Belarus"), 
+             Land("Germany"), Land("Russia"), Land("Norway"), Land("Australia"), Land("Belgium"), Land("United Kingdom"),
+             Land("Croatia"), Land("Greece"), Land("Lithuania"), Land("Serbia"), Land("Macedonia"), Land("Albania"),
+             Land("Estonia"), Land("Ukraine"), Land("Italy"), Land("Poland"), Land("Slovenia"), Land("Hungary"),
+             Land("Montenegro"), Land("Sweden")]
 
 def top_by_attribute(top_list, land, attribute, attribute2):
+    # Tar emot en lista, ett land, ett attribut hos land som det ska sorteras efter
+    # Och ett andra attribut, vilket behövs då funktionen anropas när man vill
+    # hålla koll på både hur många år i rad den har varit i en klick just nu och 
+    # hur många år i rad den har varit i en klick som längst
     if (top_list == [] or getattr(land, attribute) > getattr(top_list[0], attribute)):
         top_list.clear()
         top_list.append(land)
     elif (getattr(land, attribute) == getattr(top_list[0], attribute2)):
         top_list.append(land)
 
+# Lista på klickar som har förekommit minst en gång
 jury_clique_list = []
 tele_clique_list = []
 
-def count_clique_participation(v, i, type_of_clique):
+def count_clique_participation(v, i, type_of_clique, streak_type, long_streak_type):
     # Tar emot en lista, ett index för vilket land som räknas, om det är jury eller teleklick som räknas
-    # Ändrar direkt i listan, förmodligen dåligt
+    # vilken streak som räknas, vilken längsta streak som ska passeras
     for years in v:
         for cliques in years:
             if (i+1) in cliques:
-                if type_of_clique == "jury":
-                    landlista[i].in_jury_clique += 1
-                    landlista[i].current_jury_streak += 1
-                elif type_of_clique == "tele":
-                    landlista[i].in_tele_clique += 1
-                    landlista[i].current_tele_streak += 1
+                setattr(landlista[i], type_of_clique, getattr(landlista[i], type_of_clique) + 1)
+                setattr(landlista[i], streak_type, getattr(landlista[i], streak_type) + 1)
             else:
-                if type_of_clique == "jury":
-                    if landlista[i].current_jury_streak > landlista[i].longest_jury_streak:
-                        landlista[i].longest_jury_streak = landlista[i].current_jury_streak
-                    landlista[i].current_jury_streak = 0
-                elif type_of_clique == "tele":
-                    if landlista[i].current_tele_streak > landlista[i].longest_tele_streak:
-                        landlista[i].longest_tele_streak = landlista[i].current_tele_streak
-                    landlista[i].current_tele_streak = 0
+                setattr(landlista[i], streak_type, getattr(landlista[i], streak_type) + 1)
+                if getattr(landlista[i], streak_type) > getattr(landlista[i], long_streak_type):
+                    setattr(landlista[i], long_streak_type, getattr(landlista[i], streak_type))
+                setattr(landlista[i], streak_type, 0)
 
 for i in range(len(landlista)):
-    count_clique_participation(jury_list, i, "jury")
-    count_clique_participation(tele_list, i, "tele")
+    count_clique_participation(jury_list, i, "in_jury_clique", "current_jury_streak", "longest_jury_streak")
+    count_clique_participation(tele_list, i, "in_tele_clique", "current_tele_streak", "longest_tele_streak")
 
 for jury_years in jury_list:
     for jury_cliques in jury_years:
@@ -110,20 +92,32 @@ for tele_years in tele_list:
     for tele_cliques in tele_years:
         tele_clique_list.append(sorted(tele_cliques))
 
-tele_done_cliques = []
-jury_done_cliques = []
+common_tele_clique = []
+common_tele_clique_number = 0
+common_jury_clique = []
+common_jury_clique_number = 0
 
-for cliques in (jury_clique_list):
-    if (cliques not in jury_done_cliques):
-        print(f"{cliques} var en klick för juryröster {jury_clique_list.count(cliques)} gånger")
-        jury_done_cliques.append(cliques)
-for cliques in (tele_clique_list):
-    if (cliques not in tele_done_cliques):
-        print(f"{cliques} var en klick för teleröster {tele_clique_list.count(cliques)} gånger")
-        tele_done_cliques.append(cliques)
+def count_clique_occurence(clique_list, most_common):
+    done_cliques = []
+    most_common_number = 0
+    for cliques in clique_list:
+        if (cliques not in done_cliques and cliques != []):
+            done_cliques.append(cliques)
+            if (most_common == [] or clique_list.count(cliques) > len(most_common[0])):
+                most_common.clear()
+                most_common.append(cliques)
+                most_common_number = clique_list.count(cliques)
+            elif (clique_list.count(cliques) == len(most_common[0])):
+                most_common.append(cliques)
+    return most_common_number
 
+common_jury_clique_number = count_clique_occurence(jury_clique_list, common_jury_clique)
+common_tele_clique_number = count_clique_occurence(tele_clique_list, common_tele_clique)
+
+# Topplistor för vilka länder som var med i flest klickar
 top_jury_clique = []
 top_tele_clique = []
+# Topplistor för vilka länder som var i klickar flest år i rad, inte nödvändigtvis samma klick varje år
 top_jury_streak = []
 top_tele_streak = []
 
@@ -133,7 +127,21 @@ for land in landlista:
     top_by_attribute(top_jury_streak, land, "longest_jury_streak", "in_jury_clique")
     top_by_attribute(top_tele_streak, land, "longest_tele_streak", "in_tele_clique")
 
-print(f"Jury champ: Land {top_jury_clique} i {top_jury_clique[0].in_jury_clique} jury klickar totalt")
-print(f"Tele champ: Land {top_tele_clique} i {top_tele_clique[0].in_tele_clique} televote klickar totalt")
-print(f"Längsta streak att vara med i någon juryklick: \nLand {top_jury_streak}, {top_jury_streak[0].longest_jury_streak} år i rad")
-print(f"Längsta streak att vara med i någon televoteklick: \nLand {top_tele_streak}, {top_tele_streak[0].longest_tele_streak} år i rad")
+cliques_in_both = {}
+
+for i in range(len(jury_list) - 1):
+    for j_cliques in jury_list[i]:
+        for t_cliques in tele_list[i]:
+            if sorted(j_cliques) == sorted(t_cliques):
+                cliques_in_both[2016 + i] = (sorted(j_cliques))
+    
+
+print(f"Jury champ: {top_jury_clique} i {top_jury_clique[0].in_jury_clique} jury klickar totalt")
+print(f"Tele champ: {top_tele_clique} i {top_tele_clique[0].in_tele_clique} televote klickar totalt")
+print(f"\nLängsta streak att vara med i någon juryklick: \n{top_jury_streak}, {top_jury_streak[0].longest_jury_streak} år i rad inte ensam")
+print(f"\nLängsta streak att vara med i någon televoteklick: \n{top_tele_streak}, {top_tele_streak[0].longest_tele_streak} år i rad inte ensam")
+print(f"\nVanligaste jury-klicken: {common_jury_clique}, förekom {common_jury_clique_number} gånger")
+print(f"Vanligaste televote-klicken: {common_tele_clique}, förekom {common_tele_clique_number} gånger")
+print("\nÅr där klickar fanns både bland jury och televote: ")
+for years in cliques_in_both:
+    print(f"{years}: {cliques_in_both[years]}")
