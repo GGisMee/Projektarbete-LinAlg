@@ -50,8 +50,9 @@ def main():
         L2.append(i)
     BK(set([]),set(L2),set([]),L1,find_edges(arr))
     L1 = remove_sublist(L1)
+    for i in range(len(L1)):
+        for j in reversed(range(len(index))):
+            L1[i] = [int(index[j]) if x == j else x for x in L1[i]]
     return L1
 
 main()
-
-
