@@ -16,6 +16,7 @@ class PygameVars:
 
 @dataclass
 class MvVars:
+    '''A dataclass to store information about movement of the vectors'''
     central_multiplier: np.float32
     node_distance: int
     node_multiplier: np.float32
@@ -219,8 +220,8 @@ class CliquesDislay:
         self.node_vars_setup = True
         self.node_vars = NodeVars(RADIUS=RADIUS, NODE_COLOR=NODE_COLOR, LINE_WIDTH=LINE_WIDTH, ARROW_NAME_COLOR=ARROW_NAME_COLOR)
 if __name__ == "__main__":
-    VERTEX_MATRIX: np.ndarray = np.array([[0,0,1], [1,0,0], [1,1,0]])
-    CHOSEN_NODES = (0,1)
+    VERTEX_MATRIX: np.ndarray = np.array([[0,1,1], [1,0,0], [1,1,0]])
+    CHOSEN_NODES = (0,1,2)
     NODE_NAMES = ("Sweden", "Bulgaria", "North Korea")
     cliques_display = CliquesDislay(VERTEX_MATRIX, NODE_NAMES, CHOSEN_NODES, 30)
     cliques_display.run()
