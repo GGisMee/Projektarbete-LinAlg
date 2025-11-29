@@ -2,10 +2,10 @@ import numpy as np
 from data_tools_1 import CSVTools, MatrixTools
 from process_to_node_matrix_2 import get_binary_matrix
 
-def find_cliques(matrix: np.ndarray, countries: list):
-    """Hittar vilka länder som är med i åtmisntone 1 klick."""
+def find_cliques(binary_matrix: np.ndarray, countries: list) -> tuple[np.ndarray, list]:
+    """Hittar vilka länder som är med i åtminstone 1 klick."""
     
-    symmetrical_matrix = matrix * matrix.T  # Skapar en symmetrisk matris med alla connections som är åt båda hållen
+    symmetrical_matrix = binary_matrix * binary_matrix.T  # Skapar en symmetrisk matris med alla connections som är åt båda hållen
     
     # Tar bort connections med sig själv
     n = symmetrical_matrix.shape[0]
@@ -20,7 +20,7 @@ def find_cliques(matrix: np.ndarray, countries: list):
         if A3[i, i] != 0:
             clique_member_indices.append(i)
     
-    #Finner namnen på alla länder i klickar
+    # Finner namnen på alla länder i klickar
     clique_member_names = []
     for index in clique_member_indices:
         name = countries[index]

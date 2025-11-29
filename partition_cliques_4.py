@@ -55,4 +55,6 @@ def main():
             L1[i] = [int(index[j]) if x == j else x for x in L1[i]]
     return L1
 
-main()
+# Exempel från denna filen?
+if __name__ == '__main__':
+     main()

@@ -9,6 +9,8 @@ import show_cliques_6
 
 if __name__ == "__main__":
     number_of_countries = 10
+    show_cliques: bool = True
+
 
     files = ("Data/Jury/2016_jury_results.csv", "Data/Jury/2017_jury_results.csv")
     csv_tools = import_tools.CSVTools()
@@ -17,4 +19,8 @@ if __name__ == "__main__":
     matrix, countries = matrix_tools.matrix_from_data(votes, number_of_countries)
 
     binary_matrix = to_binary.get_binary_matrix(matrix, threshold=6)
-    
+    clique_indicies, clique_names =  find_cliques.find_cliques(binary_matrix, countries)
+
+    cliques_display = show_cliques_6.CliquesDislay(matrix, countries, CHOSEN_NODES=clique_indicies.tolist())
+    cliques_display.setup_pygame_vars(1500, 1000)
+    cliques_display.run()

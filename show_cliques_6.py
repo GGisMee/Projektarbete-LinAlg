@@ -110,12 +110,12 @@ class Nodes:
 
     @staticmethod
     def calculate_movement_vec(vectors: np.ndarray, multiplier:np.float32, prefered_distance: np.float32 | float) -> tuple[np.ndarray, np.ndarray]:
-        '''Given some vectors in different directions, calculate '''
+        '''Given some vectors in different directions, calculate a movement vector'''
         length_of_vectors = np.linalg.norm(vectors, axis=-1)
         normalized_vectors = vectors / length_of_vectors[:, np.newaxis]
         distances = multiplier * (length_of_vectors - prefered_distance)
         if len(normalized_vectors):
-            vectorized_distances = distances* normalized_vectors
+            vectorized_distances = distances[:, np.newaxis]* normalized_vectors
         else:
             vectorized_distances = 0
         return np.sum(vectorized_distances, axis=0), normalized_vectors
@@ -137,6 +137,7 @@ class Nodes:
             # Get all the vectors to the connected_nodes
             connected_to = self.VERTEX_MATRIX[i]
             vectors_to_connected_nodes = (self.positions-node.pos)[np.where(connected_to)]
+            vectors_to_not_connected_nodes = (self.positions-node.pos)[np.where(connected_to)]
             movement_vector, normalized_vecs_to_connected_nodes = self.get_output_movement_vector(node, vectors_to_connected_nodes)
             if np.any(connected_to):
                 node.draw_arrow(screen, vectors_to_connected_nodes, normalized_vecs_to_connected_nodes)
