@@ -23,4 +23,5 @@ if __name__ == "__main__":
 
     cliques_display = show_cliques_6.CliquesDislay(matrix, countries, CHOSEN_NODES=clique_indicies.tolist())
     cliques_display.setup_pygame_vars(1500, 1000)
+    cliques_display.setup_node_vars(14, LINE_WIDTH=2)
     cliques_display.run()

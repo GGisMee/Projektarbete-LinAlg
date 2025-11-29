@@ -1,9 +1,16 @@
 import sys
 from dataclasses import dataclass
-
+from typing import Callable
 import numpy as np
 from numpy.typing import NDArray
 import pygame
+
+@staticmethod
+def spring_force(lengths:np.ndarray, multiplier: np.float32, prefered_distance:int):
+    return multiplier * (lengths-prefered_distance)
+@staticmethod
+def inverse_square_force(lengths: np.ndarray, multiplier:np.float32, prefered_distance:int):
+    return multiplier / (lengths**2+1e-6)
 
 @dataclass
 class PygameVars:
@@ -87,8 +94,7 @@ class Nodes:
         self.mv_vars = mv_vars
         self.CENTRUM_PONT = CENTRUM_POINT
         self.positions: np.ndarray = np.array([])
-        
-
+        self.SYMMETRIC_UNVERTEX_MATRIX = 1-((VERTEX_MATRIX+ VERTEX_MATRIX.T) != 0)
     @staticmethod
     def generate_nodes(CHOSEN_NODES: tuple, SCREEN_SIZE: tuple[int, int], NODE_NAMES: tuple[str,...], node_vars:NodeVars) -> list[Node]:
         '''Simple helper method to generate the a list of type Node for indices in CHOSEN_NODES'''
@@ -109,23 +115,29 @@ class Nodes:
         return ds
 
     @staticmethod
-    def calculate_movement_vec(vectors: np.ndarray, multiplier:np.float32, prefered_distance: np.float32 | float) -> tuple[np.ndarray, np.ndarray]:
+    def calculate_movement_vec(vectors: np.ndarray, multiplier:np.float32, prefered_distance: int, distance_multiplier_formula:Callable[[np.ndarray, np.float32, int], np.ndarray]) -> tuple[np.ndarray, np.ndarray]:
         '''Given some vectors in different directions, calculate a movement vector'''
         length_of_vectors = np.linalg.norm(vectors, axis=-1)
         normalized_vectors = vectors / length_of_vectors[:, np.newaxis]
-        distances = multiplier * (length_of_vectors - prefered_distance)
+        distances = distance_multiplier_formula(length_of_vectors, multiplier, prefered_distance)
         if len(normalized_vectors):
             vectorized_distances = distances[:, np.newaxis]* normalized_vectors
         else:
             vectorized_distances = 0
         return np.sum(vectorized_distances, axis=0), normalized_vectors
          
-    def get_output_movement_vector(self, node:Node, vectors_to_connected_nodes:np.ndarray) -> tuple[np.ndarray, np.ndarray]:
+    def get_output_movement_vector(self, node:Node, vectors_to_connected_nodes:np.ndarray, vectors_to_not_connected_nodes: np.ndarray) -> tuple[np.ndarray, np.ndarray]:
         '''Creates the different vectors and adds them together to get a finalized movement vector for the node'''
         centrum_vec = self.CENTRUM_PONT-node.pos
-        vec_to_center, _ = self.calculate_movement_vec(centrum_vec[None, ...], self.mv_vars.central_multiplier, prefered_distance=0)
-        summed_vec_to_connected_nodes, normalized_vecs_to_connected_nodes = self.calculate_movement_vec(vectors_to_connected_nodes, self.mv_vars.node_multiplier, prefered_distance=self.mv_vars.node_distance)
-        return vec_to_center+summed_vec_to_connected_nodes, normalized_vecs_to_connected_nodes
+        vec_to_center, _ = self.calculate_movement_vec(centrum_vec[None, ...], self.mv_vars.central_multiplier, prefered_distance=0, distance_multiplier_formula=spring_force)
+        vec_to_connected_nodes, normalized_vecs_to_connected_nodes = self.calculate_movement_vec(vectors_to_connected_nodes, self.mv_vars.node_multiplier, prefered_distance=self.mv_vars.node_distance, distance_multiplier_formula=spring_force)
+        vec_to_unconnected_nodes, _ = self.calculate_movement_vec(vectors_to_not_connected_nodes, multiplier=np.float32(50**2), prefered_distance=0, distance_multiplier_formula=inverse_square_force)
+        return vec_to_center+vec_to_connected_nodes-vec_to_unconnected_nodes, normalized_vecs_to_connected_nodes
+
+    def find_unconnected_nodes(self, index: int, this_node_pos:np.ndarray, positions:np.ndarray):
+        not_connected_to = list(self.SYMMETRIC_UNVERTEX_MATRIX[index])
+        not_connected_to[index] = 0 # it should not be unconnected from itself.
+        return positions[np.where(not_connected_to)]-this_node_pos
 
     def mv_and_draw(self, screen: pygame.Surface):
         '''A function which iterates through the nodes. 
@@ -137,8 +149,10 @@ class Nodes:
             # Get all the vectors to the connected_nodes
             connected_to = self.VERTEX_MATRIX[i]
             vectors_to_connected_nodes = (self.positions-node.pos)[np.where(connected_to)]
-            vectors_to_not_connected_nodes = (self.positions-node.pos)[np.where(connected_to)]
-            movement_vector, normalized_vecs_to_connected_nodes = self.get_output_movement_vector(node, vectors_to_connected_nodes)
+
+            vectors_to_not_connected_nodes = self.find_unconnected_nodes(i, node.pos, self.positions)
+             
+            movement_vector, normalized_vecs_to_connected_nodes = self.get_output_movement_vector(node, vectors_to_connected_nodes, vectors_to_not_connected_nodes=vectors_to_not_connected_nodes)
             if np.any(connected_to):
                 node.draw_arrow(screen, vectors_to_connected_nodes, normalized_vecs_to_connected_nodes)
             node.draw_node(screen)
@@ -221,8 +235,10 @@ class CliquesDislay:
         self.node_vars_setup = True
         self.node_vars = NodeVars(RADIUS=RADIUS, NODE_COLOR=NODE_COLOR, LINE_WIDTH=LINE_WIDTH, ARROW_NAME_COLOR=ARROW_NAME_COLOR)
 if __name__ == "__main__":
-    VERTEX_MATRIX: np.ndarray = np.array([[0,1,1], [1,0,0], [1,1,0]])
-    CHOSEN_NODES = (0,1,2)
-    NODE_NAMES = ("Sweden", "Bulgaria", "North Korea")
+    VERTEX_MATRIX: np.ndarray = np.array([[0,1,1,0,0,0], [1,0,0,0,0,0], [1,1,0,0,0,0], [0,0,0, 0,1,1], [0,0,0,1,0,0], [0,0,0,1,1,0]])
+    CHOSEN_NODES = (0,1,2, 3,4,5)
+    NODE_NAMES = ("Sweden", "Bulgaria", "North Korea", "Kosovo", "Mongolia", "Ivory Coast")
     cliques_display = CliquesDislay(VERTEX_MATRIX, NODE_NAMES, CHOSEN_NODES, 30)
+    cliques_display.setup_pygame_vars(1500, 1000)
+    cliques_display.setup_node_vars(14, LINE_WIDTH=2)
     cliques_display.run()
