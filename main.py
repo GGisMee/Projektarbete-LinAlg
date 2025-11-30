@@ -33,11 +33,11 @@ if __name__ == "__main__":
 
 
     # display cliques
-    # cliques_display = show_cliques_6.CliquesDislay(VERTEX_MATRIX=symmetrical_matrix, NODE_NAMES=countries, CHOSEN_NODES=clique_indicies.tolist())
-    # cliques_display.setup_pygame_vars(1500, 1000)
-    # cliques_display.setup_node_vars(14, LINE_WIDTH=2)
-    # cliques_display.setup_movement_vars(node_distance=400)
-    # cliques_display.run()
+    cliques_display = show_cliques_6.CliquesDislay(VERTEX_MATRIX=symmetrical_matrix, NODE_NAMES=countries, CHOSEN_NODES=clique_indicies.tolist())
+    cliques_display.setup_pygame_vars(1500, 1000)
+    cliques_display.setup_node_vars(20, LINE_WIDTH=2)
+    cliques_display.setup_movement_vars(node_distance=400, unconnected_multiplier=80, center_speed=0.05)
+    cliques_display.run()
 
     
 

@@ -27,6 +27,7 @@ class MvVars:
     central_multiplier: np.float32
     node_distance: int
     node_multiplier: np.float32
+    unconnected_multiplier: int
 
 @dataclass
 class NodeVars:
@@ -131,7 +132,7 @@ class Nodes:
         centrum_vec = self.CENTRUM_PONT-node.pos
         vec_to_center, _ = self.calculate_movement_vec(centrum_vec[None, ...], self.mv_vars.central_multiplier, prefered_distance=0, distance_multiplier_formula=spring_force)
         vec_to_connected_nodes, normalized_vecs_to_connected_nodes = self.calculate_movement_vec(vectors_to_connected_nodes, self.mv_vars.node_multiplier, prefered_distance=self.mv_vars.node_distance, distance_multiplier_formula=spring_force)
-        vec_to_unconnected_nodes, _ = self.calculate_movement_vec(vectors_to_not_connected_nodes, multiplier=np.float32(50**2), prefered_distance=0, distance_multiplier_formula=inverse_square_force)
+        vec_to_unconnected_nodes, _ = self.calculate_movement_vec(vectors_to_not_connected_nodes, multiplier=np.float32(self.mv_vars.unconnected_multiplier**2), prefered_distance=0, distance_multiplier_formula=inverse_square_force)
         return vec_to_center+vec_to_connected_nodes-vec_to_unconnected_nodes, normalized_vecs_to_connected_nodes
 
     def find_unconnected_nodes(self, index: int, this_node_pos:np.ndarray, positions:np.ndarray):
@@ -211,13 +212,13 @@ class CliquesDislay:
         pygame.quit()
         sys.exit()
 
-    def setup_movement_vars(self, center_speed: float = 0.1, node_distance: int = 180, node_speed:float = 0.2):
+    def setup_movement_vars(self, center_speed: float = 0.1, node_distance: int = 180, node_speed:float = 0.2, unconnected_multiplier:int = 50):
         central_multiplier = np.float32(center_speed/self.FPS) # 3 pixels per second
         node_distance = node_distance# pixels
         node_multiplier = np.float32(node_speed/self.FPS) # 5 pixels per second
 
         self.mv_vars_setup = True
-        self.mv_vars = MvVars(central_multiplier=central_multiplier, node_distance=node_distance, node_multiplier=node_multiplier)
+        self.mv_vars = MvVars(central_multiplier=central_multiplier, node_distance=node_distance, node_multiplier=node_multiplier, unconnected_multiplier=unconnected_multiplier)
     def setup_pygame_vars(self, WIDTH: int=2500, HEIGHT: int=3000):
         pygame.init()
         screen = pygame.display.set_mode((WIDTH, HEIGHT))
