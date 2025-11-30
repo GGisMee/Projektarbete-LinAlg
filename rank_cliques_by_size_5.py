@@ -1,11 +1,5 @@
 #from partition_cliques_4.py import list
 
-#Lista för att testa
-a = ["a", "b", "c"]
-b = ["d", "e", ""]
-c = ["f"]
-d = ["g", "h", "i", "j"]
-temp_list = [a, b, c, d]
 
 def find_index_longest(v):
     #Hittar index för längsta listan i lista v, returnerar index
@@ -15,16 +9,29 @@ def find_index_longest(v):
             index_max = i
     return index_max
 
-ranked_length = []
+def print_result(ranked_by_length):
+    '''Prints lists in order'''
+    j = 0
+    while j in range(len(ranked_by_length)):
+        rank_length = len(ranked_by_length[j])
+        print(f"Plats {j+1}:", end = "\n")
+        while (j in range(len(ranked_by_length)) and len(ranked_by_length[j]) == rank_length):
+            print(f"{ranked_by_length[j]}", end = "\n")
+            j += 1
+        print()
 
-for i in range(len(temp_list)):
-    ranked_length.append(temp_list.pop(find_index_longest(temp_list)))
+def rank(temp_list:list):
+    '''Rankar vilken som är längst'''
+    ranked_by_length = []
+    for i in range(len(temp_list)):
+        ranked_by_length.append(temp_list.pop(find_index_longest(temp_list)))
+    print_result(ranked_by_length)
 
-j = 0
-while j in range(len(ranked_length)):
-    rank_length = len(ranked_length[j])
-    print(f"Plats {j+1}:", end = "\n")
-    while (j in range(len(ranked_length)) and len(ranked_length[j]) == rank_length):
-        print(f"{ranked_length[j]}", end = "\n")
-        j += 1
-    print("\n")
+if __name__ == "__main__":
+    #Lista för att testa
+    a = [1, 2, 3]
+    b = [0, 1, 2]
+    c = [4]
+    d = [3, 5, 6, 9]
+    temp_list = [a, b, c, d]
+    rank(temp_list)

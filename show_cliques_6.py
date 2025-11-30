@@ -94,7 +94,7 @@ class Nodes:
         self.mv_vars = mv_vars
         self.CENTRUM_PONT = CENTRUM_POINT
         self.positions: np.ndarray = np.array([])
-        self.SYMMETRIC_UNVERTEX_MATRIX = 1-((VERTEX_MATRIX+ VERTEX_MATRIX.T) != 0)
+        self.SYMMETRIC_UNVERTEX_MATRIX = 1-((self.VERTEX_MATRIX+ self.VERTEX_MATRIX.T) != 0)
     @staticmethod
     def generate_nodes(CHOSEN_NODES: tuple, SCREEN_SIZE: tuple[int, int], NODE_NAMES: tuple[str,...], node_vars:NodeVars) -> list[Node]:
         '''Simple helper method to generate the a list of type Node for indices in CHOSEN_NODES'''
@@ -102,7 +102,7 @@ class Nodes:
         y_positions = np.random.randint(low=0,high= SCREEN_SIZE[1], size=len(CHOSEN_NODES)).astype(np.float32)
         nodes = []
         for list_index, node_index in enumerate(CHOSEN_NODES):
-            name = NODE_NAMES[node_index]
+            name = NODE_NAMES[list_index]
             x_pos = x_positions[list_index]
             y_pos = y_positions[list_index]
             
@@ -162,7 +162,7 @@ class Nodes:
 
 class CliquesDislay:
     '''A class for showing the cliques'''
-    def __init__(self, VERTEX_MATRIX: np.ndarray, NODE_NAMES: tuple[str,...], CHOSEN_NODES: tuple[int,...], FPS:int=30) -> None:
+    def __init__(self, VERTEX_MATRIX: np.ndarray, NODE_NAMES: tuple[str,...], CHOSEN_NODES: tuple[int,...] | None = None, FPS:int=30) -> None:
         '''Initialize the Display
         Preferable then select choices for Display by running:
         * setup_movement_variables
