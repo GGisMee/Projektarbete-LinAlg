@@ -207,8 +207,6 @@ class CliquesDislay:
             pygame.display.flip()
 
             self.pygame_vars.clock.tick(self.pygame_vars.FPS)
-            pygame.display.update()
-            pass
         pygame.quit()
         sys.exit()
 
