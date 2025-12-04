@@ -1,6 +1,13 @@
 import collections
 import numpy as np
 
+def separated_cliques_to_name(cliques:list[list[int]], names:list[str]) -> list[list[str]]:
+    str_cliques = []
+    for clique in cliques:
+        str_clique = [names[i] for i in clique]
+        str_cliques.append(str_clique)
+    return str_cliques
+
 def filter_out_cliques_with_2_or_less(cliques: list) -> list:
     filtered_cliques = []
     for clique in cliques:

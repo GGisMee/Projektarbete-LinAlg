@@ -4,7 +4,7 @@ import find_indices_cliques_3 as find_cliques
 import partition_cliques_4 
 import rank_cliques_by_size_5
 import show_cliques_6
-# import compare_data_7
+import compare_data_7
 
 import numpy as np
 
@@ -30,7 +30,8 @@ if __name__ == "__main__":
     # seperate into clique groups
     cliques_list = partition_cliques_4.seperate_into_cliques(np.array(list(range(len(symmetrical_matrix)))), symmetrical_matrix)
     cliques_list = partition_cliques_4.filter_out_cliques_with_2_or_less(cliques_list)
-
+    str_cliques_list = partition_cliques_4.separated_cliques_to_name(cliques=cliques_list, names=countries)
+    rank_cliques_by_size_5.rank(str_cliques_list)
 
     # display cliques
     cliques_display = show_cliques_6.CliquesDislay(VERTEX_MATRIX=symmetrical_matrix, NODE_NAMES=countries, CHOSEN_NODES=clique_indicies.tolist())

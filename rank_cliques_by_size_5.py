@@ -1,6 +1,5 @@
 #from partition_cliques_4.py import list
 
-
 def find_index_longest(v):
     #Hittar index för längsta listan i lista v, returnerar index
     index_max = 0
