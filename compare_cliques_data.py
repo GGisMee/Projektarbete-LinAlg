@@ -8,16 +8,65 @@ import compare_data_7
 
 import numpy as np
 
-def iterate_clique_data():
-    pass
+def get_paths(years: list[int], data_type: str):
+    paths = [f'Data/Jury/{year}_{data_type}_results.csv' for year in years]
+    return paths
+
+
+def get_all_data(paths: list[str], number_of_countries: int) -> tuple[list[np.ndarray], list[str]]:
+    '''Gets relevant data from files
+    Returns: matrices, countries.
+    matrices: list of matrices of votes
+    countries: list of country names corresponding to indices in matrices'''
+    csv_tools = import_tools.CSVTools()
+    matrix_tools = import_tools.MatrixTools()
+    matrices = []
+    for path in paths:
+        votes = csv_tools.load(relative_path=path)
+        matrix, countries = matrix_tools.matrix_from_data(votes, number_of_countries)
+        matrices.append(matrix)
+
+    return matrices, countries
+
+def get_cliques(matrices: list[np.ndarray], countries:list[str]) -> tuple[list[list], list[list]]:
+    '''Returns a list of the cliques'''
+    list_clique_indices = []
+    list_clique_names = []
+    for matrix in matrices:
+        # Turn matrix to binary matrix (directed matrix)
+        binary_matrix = to_binary.get_binary_matrix(matrix, threshold=4)
+
+        # Gets the indicies which are in cliques (greater with more countries then 2) and their names
+        symmetrical_matrix = find_cliques.get_symmetric_matrix(binary_matrix)
+
+        cliques_list = partition_cliques_4.seperate_into_cliques(np.array(list(range(len(symmetrical_matrix)))), symmetrical_matrix)
+        cliques_list = partition_cliques_4.filter_out_cliques_with_2_or_less(cliques_list)
+        clique_names = partition_cliques_4.separated_cliques_to_name(cliques=cliques_list, names=countries)
+        list_clique_indices.append(cliques_list)
+        list_clique_names.append(clique_names)
+    return list_clique_indices, list_clique_names
+
+def pair_get_data(jury_tele: tuple[bool,bool], years: list[int], number_of_countries: int = 0):
+    if jury_tele[0]:
+        paths = get_paths(years, data_type)
+        matrices, countries = get_all_data(paths, number_of_countries)
+        _, list_clique_names = get_cliques(matrices, countries)
+
+
 
 if __name__ == "__main__":
     years: list[int] = [2023, 2022]
-    jury: bool = True
-    Tele: bool = True
+    data_type = 'jury'
     number_of_countries = 25
     show_cliques: bool = True
+    
+    paths = get_paths(years, data_type)
+    matrices, countries = get_all_data(paths, number_of_countries)
+    _, list_clique_names = get_cliques(matrices, countries)
 
+    rank_cliques_by_size_5.rank(list_clique_names)
+    
+    exit()
 
     files = ("Data/Jury/2016_jury_results.csv", "Data/Jury/2017_jury_results.csv")
     csv_tools = import_tools.CSVTools()
@@ -30,7 +79,6 @@ if __name__ == "__main__":
 
     # Gets the indicies which are in cliques (greater with more countries then 2) and their names
     symmetrical_matrix = find_cliques.get_symmetric_matrix(binary_matrix)
-    clique_indicies, clique_names =  find_cliques.find_cliques(symmetrical_matrix, countries)
 
     # seperate into clique groups
     cliques_list = partition_cliques_4.seperate_into_cliques(np.array(list(range(len(symmetrical_matrix)))), symmetrical_matrix)
