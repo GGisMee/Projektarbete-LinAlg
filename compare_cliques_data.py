@@ -8,8 +8,13 @@ import compare_data_7
 
 import numpy as np
 
+def iterate_clique_data():
+    pass
 
 if __name__ == "__main__":
+    years: list[int] = [2023, 2022]
+    jury: bool = True
+    Tele: bool = True
     number_of_countries = 25
     show_cliques: bool = True
 
@@ -34,11 +39,11 @@ if __name__ == "__main__":
     rank_cliques_by_size_5.rank(str_cliques_list)
 
     # display cliques
-    cliques_display = show_cliques_6.CliquesDislay(VERTEX_MATRIX=symmetrical_matrix, NODE_NAMES=countries, CHOSEN_NODES=clique_indicies.tolist())
-    cliques_display.setup_pygame_vars(1500, 1000)
-    cliques_display.setup_node_vars(20, LINE_WIDTH=2)
-    cliques_display.setup_movement_vars(node_distance=400, unconnected_multiplier=80, center_speed=0.05)
-    cliques_display.run()
+    # cliques_display = show_cliques_6.CliquesDislay(VERTEX_MATRIX=symmetrical_matrix, NODE_NAMES=countries, CHOSEN_NODES=clique_indicies.tolist())
+    # cliques_display.setup_pygame_vars(1500, 1000)
+    # cliques_display.setup_node_vars(20, LINE_WIDTH=2)
+    # cliques_display.setup_movement_vars(node_distance=400, unconnected_multiplier=80, center_speed=0.05)
+    # cliques_display.run()
 
-    
+    # compare_data_7.run()   
 

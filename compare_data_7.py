@@ -20,17 +20,6 @@ class Land:
     longest_jury_streak = 0
     longest_tele_streak = 0
 
-# Lång lista på länder, kanske går med en dictionary istället
-# Vet inte hur en loop för det skulle se ut om de ska ha olika namn, inte bara land_1, land_2 etc	
-landlista = [Land("Austria"), Land("Iceland"), Land("Azerbaijan"), Land("San Marino"), Land("Czech Republic"),
-             Land("Ireland"), Land("Georgia"), Land("Bosnia and Herzegovina"), Land("Malta"), Land("Spain"),
-             Land("Finland"), Land("Switzerland"), Land("Denmark"), Land("France"), Land("Moldova"), Land("Armenia"),
-             Land("Cyprus"), Land("Bulgaria"), Land("Netherlands"), Land("Latvia"), Land("Israel"), Land("Belarus"), 
-             Land("Germany"), Land("Russia"), Land("Norway"), Land("Australia"), Land("Belgium"), Land("United Kingdom"),
-             Land("Croatia"), Land("Greece"), Land("Lithuania"), Land("Serbia"), Land("Macedonia"), Land("Albania"),
-             Land("Estonia"), Land("Ukraine"), Land("Italy"), Land("Poland"), Land("Slovenia"), Land("Hungary"),
-             Land("Montenegro"), Land("Sweden")]
-
 def top_by_attribute(top_list, land, attribute, attribute2):
     # Tar emot en lista, ett land, ett attribut hos land som det ska sorteras efter
     # Och ett andra attribut, vilket behövs då funktionen anropas när man vill
@@ -43,7 +32,7 @@ def top_by_attribute(top_list, land, attribute, attribute2):
         top_list.append(land)
 
 
-def count_clique_participation(v, i, type_of_clique, streak_type, long_streak_type):
+def count_clique_participation(v, i, type_of_clique, streak_type, long_streak_type, landlista):
     # Tar emot en lista, ett index för vilket land som räknas, om det är jury eller teleklick som räknas
     # vilken streak som räknas, vilken längsta streak som ska passeras
     for years in v:
@@ -72,14 +61,24 @@ def count_clique_occurence(clique_list, most_common):
                 most_common.append(cliques)
     return most_common_number
 
-def run(jury_list, tele_list):
+def run(jury_list, tele_list, countries:list[str]):
+    '''Funktionen skriver ut en del information om klickarna utifrån data från flera år 
+    jury_list: en lista med sublistor av klickar från flera år för jury rösterna
+    tele_list: en lista med sublistor av klickar från flera år för tele rösterna
+    countries: en lista med alla länder.
+    '''
     # Lista på klickar som har förekommit minst en gång
     jury_clique_list = []
     tele_clique_list = []
 
+
+    # Lång lista på länder, kanske går med en dictionary istället
+    landlista = [Land(country) for country in countries]
+
+
     for i in range(len(landlista)):
-        count_clique_participation(jury_list, i, "in_jury_clique", "current_jury_streak", "longest_jury_streak")
-        count_clique_participation(tele_list, i, "in_tele_clique", "current_tele_streak", "longest_tele_streak")
+        count_clique_participation(jury_list, i, "in_jury_clique", "current_jury_streak", "longest_jury_streak", landlista)
+        count_clique_participation(tele_list, i, "in_tele_clique", "current_tele_streak", "longest_tele_streak", landlista)
 
     for jury_years in jury_list:
         for jury_cliques in jury_years:
@@ -111,12 +110,13 @@ def run(jury_list, tele_list):
 
     cliques_in_both = []
 
-    for i in range(len(jury_list) - 1):
-        for j_cliques in jury_list[i]:
-            for t_cliques in tele_list[i]:
-                if sorted(j_cliques) == sorted(t_cliques):
-                    cliques_in_both.append((2016+i, (sorted(j_cliques))))
-
+    if len(jury_list) and len(tele_list):
+        for i in range(len(jury_list) - 1):
+            for j_cliques in jury_list[i]:
+                for t_cliques in tele_list[i]:
+                    if sorted(j_cliques) == sorted(t_cliques):
+                        cliques_in_both.append((2016+i, (sorted(j_cliques))))
+    
     # Byter ut siffrorna i listorna till motsvarande land
     for cliques in common_jury_clique:
         for i in range(len(cliques)):
@@ -142,7 +142,16 @@ def run(jury_list, tele_list):
 
 
 if __name__ == '__main__':
-
+    # Lång lista på länder, kanske går med en dictionary istället
+    # Vet inte hur en loop för det skulle se ut om de ska ha olika namn, inte bara land_1, land_2 etc	
+    sim_landlista = ["Austria","Iceland","Azerbaijan","San Marino","Czech Republic",
+             "Ireland","Georgia","Bosnia and Herzegovina","Malta","Spain",
+             "Finland","Switzerland","Denmark","France","Moldova","Armenia",
+             "Cyprus","Bulgaria","Netherlands","Latvia","Israel","Belarus", 
+             "Germany","Russia","Norway","Australia","Belgium","United Kingdom",
+             "Croatia","Greece","Lithuania","Serbia","Macedonia","Albania",
+             "Estonia","Ukraine","Italy","Poland","Slovenia","Hungary",
+             "Montenegro","Sweden"]
     jury_23 = [[1, 15, 14],[1, 2]]
     tele_23 = [[25, 16, 11]]
     jury_22 = [[1, 4],[7, 9]]
@@ -163,5 +172,5 @@ if __name__ == '__main__':
     # Listor med jury och televotes
     jury_list = [jury_16, jury_17, jury_18, jury_19, jury_20, jury_21, jury_22, jury_23]
     tele_list = [tele_16, tele_17, tele_18, tele_19, tele_20, tele_21, tele_22, tele_23]
-
-    run(jury_list, tele_list)
+    tele_list = []
+    run(jury_list, tele_list, countries=sim_landlista)
