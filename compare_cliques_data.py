@@ -9,7 +9,7 @@ import compare_data_7
 import numpy as np
 
 def get_paths(years: list[int], data_type: str):
-    paths = [f'Data/Jury/{year}_{data_type}_results.csv' for year in years]
+    paths = [f'Data/{data_type}/{year}_{data_type}_results.csv' for year in years]
     return paths
 
 
@@ -48,18 +48,26 @@ def get_cliques(matrices: list[np.ndarray], countries:list[str]) -> tuple[list[l
 
 def pair_get_data(jury_tele: tuple[bool,bool], years: list[int], number_of_countries: int = 0):
     if jury_tele[0]:
-        paths = get_paths(years, data_type)
+        paths = get_paths(years, 'jury')
         matrices, countries = get_all_data(paths, number_of_countries)
-        _, list_clique_names = get_cliques(matrices, countries)
+        list_clique_index_jury, _= get_cliques(matrices, countries)
+    if jury_tele[1]:
+        paths = get_paths(years, 'televote')
+        matrices, countries = get_all_data(paths, number_of_countries)
+        list_clique_index_tele, _ = get_cliques(matrices, countries)
 
-
+    compare_data_7.run(list_clique_index_jury, list_clique_index_tele, countries=countries)
 
 if __name__ == "__main__":
     years: list[int] = [2023, 2022]
     data_type = 'jury'
+    jury_tele = (True, True)
     number_of_countries = 25
     show_cliques: bool = True
     
+    pair_get_data(jury_tele, years, number_of_countries)
+
+    exit()
     paths = get_paths(years, data_type)
     matrices, countries = get_all_data(paths, number_of_countries)
     _, list_clique_names = get_cliques(matrices, countries)
