@@ -28,7 +28,7 @@ def top_by_attribute(top_list, land, attribute, attribute2):
     if (top_list == [] or getattr(land, attribute) > getattr(top_list[0], attribute)):
         top_list.clear()
         top_list.append(land)
-    elif (getattr(land, attribute) == getattr(top_list[0], attribute2)):
+    elif (getattr(land, attribute) == getattr(top_list[0], attribute)):
         top_list.append(land)
 
 
@@ -36,15 +36,21 @@ def count_clique_participation(v, i, type_of_clique, streak_type, long_streak_ty
     # Tar emot en lista, ett index för vilket land som räknas, om det är jury eller teleklick som räknas
     # vilken streak som räknas, vilken längsta streak som ska passeras
     for years in v:
+        is_in_clique_this_year = False
         for cliques in years:
-            if (i+1) in cliques:
+            if (i + 1) in cliques:
+                is_in_clique_this_year = True
                 setattr(landlista[i], type_of_clique, getattr(landlista[i], type_of_clique) + 1)
-                setattr(landlista[i], streak_type, getattr(landlista[i], streak_type) + 1)
-            else:
-                setattr(landlista[i], streak_type, getattr(landlista[i], streak_type) + 1)
-                if getattr(landlista[i], streak_type) > getattr(landlista[i], long_streak_type):
-                    setattr(landlista[i], long_streak_type, getattr(landlista[i], streak_type))
-                setattr(landlista[i], streak_type, 0)
+        
+        if is_in_clique_this_year:
+            setattr(landlista[i], streak_type, getattr(landlista[i], streak_type) + 1)
+        else:
+            if getattr(landlista[i], streak_type) > getattr(landlista[i], long_streak_type):
+                setattr(landlista[i], long_streak_type, getattr(landlista[i], streak_type))
+            setattr(landlista[i], streak_type, 0)
+
+    if getattr(landlista[i], streak_type) > getattr(landlista[i], long_streak_type):
+        setattr(landlista[i], long_streak_type, getattr(landlista[i], streak_type))
 
 
 def count_clique_occurence(clique_list, most_common):
