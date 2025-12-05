@@ -60,13 +60,14 @@ def pair_get_data(jury_tele: tuple[bool,bool], years: list[int], number_of_count
 
 if __name__ == "__main__":
     data_type = 'jury'
+    year:int = 2017
     jury_tele = (True, True)
     number_of_countries = 0
     show_cliques: bool = True
     threshold:int = 4
     
 
-    file = "Data/jury/2023_jury_results.csv"
+    file = f"Data/{data_type}/{year}_{data_type}_results.csv"
     csv_tools = import_tools.CSVTools()
     votes = csv_tools.load(relative_path=file)
     matrix_tools = import_tools.MatrixTools()
@@ -82,9 +83,9 @@ if __name__ == "__main__":
 
     # display cliques
     cliques_display = show_cliques_6.CliquesDislay(VERTEX_MATRIX=symmetrical_matrix, NODE_NAMES=countries, CHOSEN_NODES=in_clique_indicies.tolist())
-    cliques_display.setup_pygame_vars(3000, 2000)
+    cliques_display.setup_pygame_vars(1700, 1000)
     cliques_display.setup_node_vars(20, LINE_WIDTH=2)
-    cliques_display.setup_movement_vars(node_distance=400, unconnected_multiplier=200, center_speed=0.05, node_speed=0.5)
+    cliques_display.setup_movement_vars(node_distance=200, unconnected_multiplier=120, center_speed=0.1, node_speed=0.5)
     cliques_display.run()
 
 

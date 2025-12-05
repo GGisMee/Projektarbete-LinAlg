@@ -27,11 +27,12 @@ def get_all_data(paths: list[str], number_of_countries: int) -> tuple[list[np.nd
 
     return matrices, countries
 
-def get_cliques(matrices: list[np.ndarray], countries:list[str]) -> tuple[list[list], list[list]]:
+def get_cliques(matrices: list[np.ndarray], countries:list[str], years: list[int]) -> tuple[list[list], list[list]]:
     '''Returns a list of the cliques'''
     list_clique_indices = []
     list_clique_names = []
-    for matrix in matrices:
+    for i,matrix in enumerate(matrices):
+        print(f'År {years[i]}')
         # Turn matrix to binary matrix (directed matrix)
         binary_matrix = to_binary.get_binary_matrix(matrix, threshold=4)
 
@@ -43,22 +44,25 @@ def get_cliques(matrices: list[np.ndarray], countries:list[str]) -> tuple[list[l
         clique_names = partition_cliques_4.separated_cliques_to_name(cliques=cliques_list, names=countries)
         list_clique_indices.append(cliques_list)
         list_clique_names.append(clique_names)
+        rank_cliques_by_size_5.rank(clique_names)
     return list_clique_indices, list_clique_names
 
 def pair_get_data(jury_tele: tuple[bool,bool], years: list[int], number_of_countries: int = 0):
     if jury_tele[0]:
         paths = get_paths(years, 'jury')
         matrices, countries = get_all_data(paths, number_of_countries)
-        list_clique_index_jury, _= get_cliques(matrices, countries)
+        print("jury")
+        list_clique_index_jury, _= get_cliques(matrices, countries, years)
     if jury_tele[1]:
+        print("televote")
         paths = get_paths(years, 'televote')
         matrices, countries = get_all_data(paths, number_of_countries)
-        list_clique_index_tele, _ = get_cliques(matrices, countries)
+        list_clique_index_tele, _ = get_cliques(matrices, countries, years)
 
     compare_data_7.run(list_clique_index_jury, list_clique_index_tele, countries=countries)
 
 if __name__ == "__main__":
-    years: list[int] = [2023, 2022]
+    years: list[int] = [2023, 2022, 2021,2019, 2018, 2017,2016]
     data_type = 'jury'
     jury_tele = (True, True)
     number_of_countries = 25

@@ -4,7 +4,6 @@ from typing import Callable
 import numpy as np
 from numpy.typing import NDArray
 import pygame
-
 @staticmethod
 def spring_force(lengths:np.ndarray, multiplier: np.float32, prefered_distance:int):
     return multiplier * (lengths-prefered_distance)

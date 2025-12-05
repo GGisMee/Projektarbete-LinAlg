@@ -120,7 +120,7 @@ class MatrixTools:
 # Example use
 if __name__ == "__main__":
     # Get voting data
-    path = "Data/Jury/2023_jury_results.csv"
+    path = "Data/Jury/2019_jury_results.csv"
     votes = CSVTools.load(path)
 
     # Convert to matrix form (size limited to 5x5)
