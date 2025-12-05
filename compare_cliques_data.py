@@ -12,7 +12,7 @@ def get_paths(years: list[int], data_type: str):
     return paths
 
 
-def get_all_data(paths: list[str], number_of_countries: int) -> tuple[list[np.ndarray], list[str]]:
+def get_all_data(paths: list[str], number_of_countries: int) -> tuple[list[np.ndarray], list[list[str]]]:
     '''Gets relevant data from files
     Returns: matrices, countries.
     matrices: list of matrices of votes
@@ -20,14 +20,16 @@ def get_all_data(paths: list[str], number_of_countries: int) -> tuple[list[np.nd
     csv_tools = import_tools.CSVTools()
     matrix_tools = import_tools.MatrixTools()
     matrices = []
+    countries_y = []
     for path in paths:
         votes = csv_tools.load(relative_path=path)
         matrix, countries = matrix_tools.matrix_from_data(votes, number_of_countries)
+        
         matrices.append(matrix)
+        countries_y.append(countries)
+    return matrices, countries_y
 
-    return matrices, countries
-
-def get_cliques(matrices: list[np.ndarray], countries:list[str], years: list[int]) -> tuple[list[list], list[list]]:
+def get_cliques(matrices: list[np.ndarray], countries_y:list[list[str]], years: list[int]) -> tuple[list[list], list[list]]:
     '''Returns a list of the cliques'''
     list_clique_indices = []
     list_clique_names = []
@@ -41,31 +43,32 @@ def get_cliques(matrices: list[np.ndarray], countries:list[str], years: list[int
 
         cliques_list = partition_cliques_4.seperate_into_cliques(np.array(list(range(len(symmetrical_matrix)))), symmetrical_matrix)
         cliques_list = partition_cliques_4.filter_out_cliques_with_2_or_less(cliques_list)
-        clique_names = partition_cliques_4.separated_cliques_to_name(cliques=cliques_list, names=countries)
+        clique_names = partition_cliques_4.separated_cliques_to_name(cliques=cliques_list, names=countries_y[i])
         list_clique_indices.append(cliques_list)
         list_clique_names.append(clique_names)
-        rank_cliques_by_size_5.rank(clique_names)
+        rank_cliques_by_size_5.rank(clique_names.copy())
     return list_clique_indices, list_clique_names
 
 def pair_get_data(jury_tele: tuple[bool,bool], years: list[int], number_of_countries: int = 0):
+    order_countries = ['Austria', 'Portugal', 'Switzerland', 'Poland', 'Serbia', 'France', 'Cyprus', 'Spain', 'Sweden', 'Albania', 'Italy', 'Estonia', 'Finland', 'Czech Republic', 'Australia', 'Belgium', 'Armenia', 'Moldova', 'Ukraine', 'Norway', 'Germany', 'Lithuania', 'Israel', 'Slovenia', 'Croatia', 'United Kingdom']
     if jury_tele[0]:
         paths = get_paths(years, 'jury')
-        matrices, countries = get_all_data(paths, number_of_countries)
+        matrices, countries_y = get_all_data(paths, number_of_countries)
         print("jury")
-        list_clique_index_jury, _= get_cliques(matrices, countries, years)
+        list_clique_index_jury, list_clique_names_jury= get_cliques(matrices, countries_y, years)
     if jury_tele[1]:
         print("televote")
         paths = get_paths(years, 'televote')
-        matrices, countries = get_all_data(paths, number_of_countries)
-        list_clique_index_tele, _ = get_cliques(matrices, countries, years)
+        matrices, countries_y = get_all_data(paths, number_of_countries)
+        list_clique_index_tele, list_clique_names_tele = get_cliques(matrices, countries_y, years)
 
-    compare_data_7.run(list_clique_index_jury, list_clique_index_tele, countries=countries)
+    compare_data_7.run(list_clique_names_jury, list_clique_names_tele, countries = order_countries)
 
 if __name__ == "__main__":
     years: list[int] = [2023, 2022, 2021,2019, 2018, 2017,2016]
     data_type = 'jury'
     jury_tele = (True, True)
-    number_of_countries = 25
+    number_of_countries = 0
     show_cliques: bool = True
     
     pair_get_data(jury_tele, years, number_of_countries)

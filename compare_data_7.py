@@ -38,7 +38,7 @@ def count_clique_participation(v, i, type_of_clique, streak_type, long_streak_ty
     for years in v:
         is_in_clique_this_year = False
         for cliques in years:
-            if (i + 1) in cliques:
+            if landlista[i].name in cliques:
                 is_in_clique_this_year = True
                 setattr(landlista[i], type_of_clique, getattr(landlista[i], type_of_clique) + 1)
         
@@ -124,12 +124,12 @@ def run(jury_list, tele_list, countries:list[str]):
                         cliques_in_both.append((2016+i, (sorted(j_cliques))))
     
     # Byter ut siffrorna i listorna till motsvarande land
-    for cliques in common_jury_clique:
-        for i in range(len(cliques)):
-            cliques[i] = landlista[cliques[i]-1]
-    for cliques in common_tele_clique:
-        for j in range(len(cliques)):
-            cliques[j] = landlista[cliques[j]-1]
+    # for cliques in common_jury_clique:
+    #     for i,_ in enumerate(cliques):
+    #         cliques[i] = landlista[cliques[i]-1]
+    # for cliques in common_tele_clique:
+    #     for j in range(len(cliques)):
+    #         cliques[j] = landlista[cliques[j]-1]
 
     # Print-satser för alla resultat som hittats    
     print(f"Med i flest jury-klickar: {top_jury_clique} i {top_jury_clique[0].in_jury_clique} jury klickar totalt")
@@ -141,10 +141,8 @@ def run(jury_list, tele_list, countries:list[str]):
     print("\nKlickar som fanns både bland jury och televote: ")
     # cliques_in_both är en lista med tupler, varav ena är en lista
     # ser ut som [[20XX, [1, 2]], [20XX, [3, 4]]]
-    for years in range(len(cliques_in_both)):
-        for cliques in range(len(cliques_in_both[years][1])):
-            cliques_in_both[years][1][cliques] = landlista[cliques_in_both[years][1][cliques]-1]
-        print(f"{cliques_in_both[years][0]}: {cliques_in_both[years][1]}")
+    for year, clique in cliques_in_both:
+        print(f"{year}: {clique}")
 
 
 if __name__ == '__main__':
@@ -158,25 +156,25 @@ if __name__ == '__main__':
              "Croatia","Greece","Lithuania","Serbia","Macedonia","Albania",
              "Estonia","Ukraine","Italy","Poland","Slovenia","Hungary",
              "Montenegro","Sweden"]
-    jury_23 = [[1, 15, 14],[1, 2]]
-    tele_23 = [[25, 16, 11]]
-    jury_22 = [[1, 4],[7, 9]]
-    tele_22 = [[16, 11, 25]]
-    jury_21 = [[5, 6]] 
+    
+    jury_23 = [['Austria', 'Moldova', 'France'], ['Austria', 'Iceland']]
+    tele_23 = [['Norway', 'Armenia', 'Finland']]
+    jury_22 = [['Austria', 'San Marino'], ['Georgia', 'Malta']]
+    tele_22 = [['Armenia', 'Finland', 'Norway']]
+    jury_21 = [['Czech Republic', 'Ireland']]
     tele_21 = [[]]
-    jury_20 = [[1, 5], [22, 25], [14, 1, 15]] 
+    jury_20 = [['Austria', 'Czech Republic'], ['Belarus', 'Norway'], ['France', 'Austria', 'Moldova']]
     tele_20 = [[]]
-    jury_19 = [[4, 5, 1, 7], [15, 18]] 
-    tele_19 = [[5, 1, 7, 4], [18, 15]]
-    jury_18 = [[1, 12], [4, 1, 5]] 
-    tele_18 = [[25, 26]]
-    jury_17 = [[22, 5]] 
-    tele_17 = [[11, 25, 16], [22, 5]]
-    jury_16 = [[22, 25], [5, 18]] 
-    tele_16 = [[25, 26]]
+    jury_19 = [['San Marino', 'Czech Republic', 'Austria', 'Georgia'], ['Moldova', 'Bulgaria']]
+    tele_19 = [['Czech Republic', 'Austria', 'Georgia', 'San Marino'], ['Bulgaria', 'Moldova']]
+    jury_18 = [['Austria', 'Switzerland'], ['San Marino', 'Austria', 'Czech Republic']]
+    tele_18 = [['Norway', 'Australia']]
+    jury_17 = [['Belarus', 'Czech Republic']]
+    tele_17 = [['Finland', 'Norway', 'Armenia'], ['Belarus', 'Czech Republic']]
+    jury_16 = [['Belarus', 'Norway'], ['Czech Republic', 'Bulgaria']]
+    tele_16 = [['Norway', 'Australia']]
 
     # Listor med jury och televotes
     jury_list = [jury_16, jury_17, jury_18, jury_19, jury_20, jury_21, jury_22, jury_23]
     tele_list = [tele_16, tele_17, tele_18, tele_19, tele_20, tele_21, tele_22, tele_23]
-    tele_list = []
     run(jury_list, tele_list, countries=sim_landlista)
