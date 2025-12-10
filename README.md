@@ -1,4 +1,11 @@
 # Gemensamt projekt linjär algebra
+**Medlemmar:** Gustav Gamstedt, Noah Marklund, Edvin Blomberg, Alfred Hansson och Jesper Steinarson
+**Grupp:** Grafteori 9
+
+För att köra koden använd 
+* compare_cliques_data.py (För )
+* visualise_cliques.py (För visualisering)
+
 ### Funktionsdelar i koden
 Hämta data från fil och få det till matriser (Noah) 
 * Input CSV fil
