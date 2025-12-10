@@ -87,5 +87,3 @@ if __name__ == "__main__":
     cliques_display.setup_node_vars(20, LINE_WIDTH=2)
     cliques_display.setup_movement_vars(node_distance=200, unconnected_multiplier=120, center_speed=0.1, node_speed=0.5)
     cliques_display.run()
-
-
