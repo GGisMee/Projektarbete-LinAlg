@@ -45,7 +45,7 @@ class Node:
         self.pos = pos
         self.NAME =NAME
         self.ARROW_NAME_COLOR = ARROW_NAME_COLOR
-        self.font = pygame.font.Font(None, size=R)
+        self.font = pygame.font.Font(None, size=R*2)
         self.LINE_WIDTH = LINE_WIDTH
 
     def mv(self, dpos: NDArray[np.float32]) -> None:
@@ -162,7 +162,7 @@ class Nodes:
 
 class CliquesDislay:
     '''A class for showing the cliques'''
-    def __init__(self, VERTEX_MATRIX: np.ndarray, NODE_NAMES: tuple[str,...], CHOSEN_NODES: tuple[int,...] | None = None, FPS:int=30) -> None:
+    def __init__(self, VERTEX_MATRIX: np.ndarray, NODE_NAMES: tuple[str,...], CHOSEN_NODES: tuple[int,...] | None = None, FPS:int=30, name:str = "") -> None:
         '''Initialize the Display
         Preferable then select choices for Display by running:
         * setup_movement_variables
@@ -180,6 +180,7 @@ class CliquesDislay:
         self.VERTEX_MATRIX = VERTEX_MATRIX
         self.NODE_NAMES = NODE_NAMES
         self.CHOSEN_NODES = CHOSEN_NODES
+        self.name = name
     def run(self):
         if not self.mv_vars_setup:
             self.setup_movement_vars()
@@ -219,7 +220,7 @@ class CliquesDislay:
     def setup_pygame_vars(self, WIDTH: int=2500, HEIGHT: int=3000):
         pygame.init()
         screen = pygame.display.set_mode((WIDTH, HEIGHT))
-        pygame.display.set_caption("Nodvisning")
+        pygame.display.set_caption(f"Nodvisning: {self.name}")
         clock = pygame.time.Clock()
         self.pygame_vars_setup = True
         self.pygame_vars = PygameVars(

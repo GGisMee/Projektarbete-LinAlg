@@ -82,7 +82,7 @@ if __name__ == "__main__":
     in_clique_indicies, _ = find_cliques.find_cliques(symmetrical_matrix, countries)
 
     # display cliques
-    cliques_display = show_cliques_6.CliquesDislay(VERTEX_MATRIX=symmetrical_matrix, NODE_NAMES=countries, CHOSEN_NODES=in_clique_indicies.tolist())
+    cliques_display = show_cliques_6.CliquesDislay(VERTEX_MATRIX=symmetrical_matrix, NODE_NAMES=countries, CHOSEN_NODES=in_clique_indicies.tolist(), name=f"{data_type} {year}")
     cliques_display.setup_pygame_vars(1700, 1000)
     cliques_display.setup_node_vars(20, LINE_WIDTH=2)
     cliques_display.setup_movement_vars(node_distance=200, unconnected_multiplier=120, center_speed=0.1, node_speed=0.5)
