@@ -20,7 +20,7 @@ def get_binary_matrix(matrix: np.ndarray, threshold:int=8) -> np.ndarray:
 
 # Kort exempel för denna fil
 if __name__ == "__main__":
-    path = "Data/Jury/2023_jury_results.csv"
+    path = "Data/jury/2023_jury_results.csv"
     votes = CSVTools.load(path)
     
     matrix, countries = MatrixTools.matrix_from_data(votes, 10)

@@ -32,7 +32,7 @@ def find_cliques(symmetrical_matrix: np.ndarray, countries: list) -> tuple[np.nd
 # Kort exempel för denna fil
 if __name__ == "__main__":
     
-    path = "Data/Jury/2023_jury_results.csv"
+    path = "Data/jury/2023_jury_results.csv"
     gransvarde = 6
     
     votes = CSVTools.load(path)
